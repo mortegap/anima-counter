@@ -24,6 +24,13 @@
                     zeonp: 0,
                     acu: false,
                     lock: 0,
+                    rowData:[],
+                    spellName: '',
+                    spellBase: '',
+                    spellInter: '',
+                    spellAdvanced: '',
+                    spellArcane: '',
+                    spellVia: '',
                 },
                 methods: {
                     addturn: function () {
@@ -43,10 +50,30 @@
                         this.zeona = 0;
                         this.zeonp = 0;
                     },
-                    lock_unlock: function () {
+                    lockUnlock: function () {
+                        console.log("hola2");
                         this.lock = (this.lock + 1) % 2;
                         this.rzeon = this.zeon;
-                    }
+                    },
+                    addSpell: function (e) {
+                        var new_spell = {
+                            spellName:this.spellName,
+                            spellBase:this.spellBase,
+                            spellInter:this.spellInter,
+                            spellAdvanced: this.spellAdvanced,
+                            spellArcane: this.spellArcane,
+                            spellVia: this.spellVia
+                        };
+                        this.rowData.push(new_spell);
+
+                        this.spellName = '';
+                        this.spellBase =  '';
+                        this.spellInter = '';
+                        this.spellAdvanced = '';
+                        this.spellArcane = '';
+                        this.spellVia = '';
+                        console.log(rowData);
+                    },
                 }
             })
         })
@@ -55,6 +82,7 @@
 <body>
     <script src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-form/0.3.1/vue-form.js"></script>
 
     
     <div class="container center" id="zeon">
@@ -76,7 +104,7 @@
                                     </div>
                                     <div class="column divide">
                                         <input v-model="zeon" :disabled="lock == 1" type="number" id="zeon" name="zeon" required size="6" value="{{zeon}}">
-                                        <button v-on:click="lock_unlock" type="button" class="btn-add"><i data-feather="lock"></i></button>
+                                        <button v-on:click="lockUnlock" type="button" class="btn-add"><i data-feather="lock"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +226,7 @@
                     <table class="table table-striped" style="flex:70%; margin:10px;">
                         <thead>
                           <tr>
-                            <th scope="col" colspan="5" style="text-align: center;">Lista de hechizos <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#exampleModal"><i data-feather="plus-circle"></i></button></th>
+                            <th scope="col" colspan="5" style="text-align: center;">Lista de hechizos <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#add-spell-modal"><i data-feather="plus-circle"></i></button></th>
                             
                           </tr>
                           <tr>
@@ -231,6 +259,13 @@
                             <td><button type="button" class="btn btn-secondary">180</button></td>
                             <td><button type="button" class="btn btn-secondary">250</button></td>
                           </tr>
+                          <tr v-for="item in rowData" >
+                            <th scope="row">{{ item.spellName }}</th>
+                            <td>{{ item.spellBase }}</td>
+                            <td>{{ item.spellInter }}</td>
+                            <td>{{ item.spellAdvanced }}</td>
+                            <td>{{ item.spellArcane }}</td>
+                          </tr>
                         </tbody>
                       </table>
 
@@ -243,19 +278,61 @@
     </div>
 
     <!-- MODAL -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="add-spell-modal" tabindex="-1" aria-labelledby="Hechizo" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Añadir hechizo</h5>
+              <h5 class="modal-title" id="hechizo">Añadir hechizo</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              ...
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              <button type="button" class="btn btn-success">Añadir</button>
+                <form>
+
+                    <div class="form-group m-2">
+                        <label for="name">Nombre:</label>
+                        <input v-model="spellName" type="text" class="form-control" id="name" placeholder="Crear Luz...">
+                    </div>
+
+                    <div class="form-group m-2">
+                        <label for="base">Base:</label>
+                        <input v-model="spellBase" type="number" class="form-control" id="base" placeholder="20">
+                    </div>
+
+                    <div class="form-group m-2">
+                        <label for="inter">Intermedio:</label>
+                        <input v-model="spellInter" type="number" class="form-control" id="inter" placeholder="50">
+                    </div>
+
+                    <div class="form-group m-2">
+                        <label for="advanced">Avanzado:</label>
+                        <input v-model="spellAdvanced" type="number" class="form-control" id="advanced" placeholder="100">
+                    </div>
+
+                    <div class="form-group m-2">
+                        <label for="arcane">Arcano:</label>
+                        <input v-model="spellArcane" type="number" class="form-control" id="arcane" placeholder="200">
+                    </div>
+                    <div class="form-group m-2">
+                        <label for="vias">Tipo de vía:</label>
+                        <select v-model="spellVia" class="form-control" id="vias">
+                          <option>Luz</option>
+                          <option>Oscuridad</option>
+                          <option>Creación</option>
+                          <option>Destrucción</option>
+                          <option>Fuego</option>
+                          <option>Agua</option>
+                          <option>Tierra</option>
+                          <option>Aire</option>
+                          <option>Esencia</option>
+                          <option>Ilusión</option>
+                          <option>Nigromancia</option>
+                        </select>
+                      </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button v-on:click="addSpell" type="button" class="btn btn-success" data-bs-dismiss="modal">Añadir</button>
+                      </div>
+                </form>
             </div>
           </div>
         </div>
