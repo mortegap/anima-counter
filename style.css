@@ -22,6 +22,11 @@ html body {
     margin: 10px 0px;
 }
 
+.zeon-mantain {
+  display: inline !important;
+  width: 45% !important;
+}
+
 .btn-add, input[type="submit"], input[type="reset"] {
 	background: none;
 	color: inherit;
