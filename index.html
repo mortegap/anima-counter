@@ -11,10 +11,11 @@
     <title>Zeon Counter</title>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function (e) {
             new Vue({
                 el: '#zeon',
                 data: {
+                    isEditing: false,
                     turn_number: 0,
                     zeon: 0,
                     rzeon: 0,
@@ -25,6 +26,7 @@
                     acu: false,
                     lock: 0,
                     rowData:[],
+                    readyToCast:[],
                     spellName: '',
                     spellBase: '',
                     spellInter: '',
@@ -32,7 +34,27 @@
                     spellArcane: '',
                     spellVia: '',
                 },
+                beforeMount() {
+                    window.addEventListener("beforeunload", this.preventNav)
+                    this.$once("hook:beforeDestroy", () => {
+                    window.removeEventListener("beforeunload", this.preventNav);
+                    })
+                },
+
+                beforeRouteLeave(to, from, next) {
+                    if (this.isEditing) {
+                    if (!window.confirm("Salir destruirá los datos introducidos")) {
+                        return;
+                    }
+                    }
+                    next();
+                },
                 methods: {
+                    preventNav: function(event) {
+                        if (!this.isEditing) return
+                        event.preventDefault()
+                        event.returnValue = ""
+                    },
                     addturn: function () {
                         this.turn_number++;
                         if (this.acu) {
@@ -51,12 +73,12 @@
                         this.zeonp = 0;
                     },
                     lockUnlock: function () {
-                        console.log("hola2");
                         this.lock = (this.lock + 1) % 2;
                         this.rzeon = this.zeon;
                     },
                     addSpell: function (e) {
-                        var new_spell = {
+                        if (this.spellName && this.spellBase && this.spellInter && this.spellAdvanced && this.spellArcane) {
+                            var new_spell = {
                             spellName:this.spellName,
                             spellBase:this.spellBase,
                             spellInter:this.spellInter,
@@ -72,8 +94,18 @@
                         this.spellAdvanced = '';
                         this.spellArcane = '';
                         this.spellVia = '';
-                        console.log(rowData);
+                        } else {
+                            alert("Rellena todos los campos correctamente.");
+                        }
                     },
+                    removeSpell: function (spell) {
+                        let i = this.rowData.map(item => item.spellName).indexOf(spell);
+                        this.rowData.splice(i, 1);
+                    },
+                    castSpell: function (spell) {
+                        console.log(spell);
+                        this.zeona = parseInt(this.zeona) - parseInt(spell);
+                    }
                 }
             })
         })
@@ -85,12 +117,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-form/0.3.1/vue-form.js"></script>
 
     
-    <div class="container center" id="zeon">
+    <div class="container-fluid center" id="zeon">
 
         <div class="row">
 
-            <div class="column" style="flex:30%; margin-top:10px;">
-                <div class="card" style="width: 22rem;">
+            <div class="col-md-3" style="margin-top:10px;">
+                <div class="card" style="width: 100%;">
                     <div id="sg1" class="card-header">
                         Características:
                     </div>
@@ -103,8 +135,8 @@
                                         <label for="zeon">Zeon máximo: </label>
                                     </div>
                                     <div class="column divide">
-                                        <input v-model="zeon" :disabled="lock == 1" type="number" id="zeon" name="zeon" required size="6" value="{{zeon}}">
-                                        <button v-on:click="lockUnlock" type="button" class="btn-add"><i data-feather="lock"></i></button>
+                                        <input v-model="zeon" :disabled="lock == 1" class="form-control" style="max-width: 75% !important; display: inline;" type="number" id="zeon" name="zeon" size="6" required>
+                                        <button v-on:click="lockUnlock" title="Bloquear Zeon" type="button" class="btn-add"><i data-feather="lock"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -117,7 +149,7 @@
                                         <label for="rzeon">Reserva de Zeon: </label>
                                     </div>
                                     <div class="column divide">
-                                        <input v-model="rzeon" type="number" id="rzeon" name="rzeon" size="10" value="{{rzeon}}">
+                                        <input v-model="rzeon" class="form-control" type="number" id="rzeon" name="rzeon" size="10">
                                     </div>
                                 </div>
                             </div>
@@ -130,7 +162,7 @@
                                         <label for="act">ACT: </label>
                                     </div>
                                     <div class="column divide">
-                                        <input v-model="act" type="number" id="act" name="act" required size="10" value="{{act}}">
+                                        <input v-model="act" class="form-control" type="number" id="act" name="act" required size="10">
                                     </div>
                                 </div>
                             </div>
@@ -143,7 +175,7 @@
                                         <label for="rzeoni">Reg Zeónica: </label>
                                     </div>
                                     <div class="column divide">
-                                        <input v-model="rzeoni" type="number" id="reg" name="reg" required size="10" value="rzeoni">
+                                        <input v-model="rzeoni" class="form-control" type="number" id="reg" name="reg" required size="10">
                                     </div>
                                 </div>
                             </div>
@@ -153,22 +185,77 @@
                 </div>
             </div>
 
-            <div class="column" style="flex:70%; margin-top:10px;">
+            <div class="col-md-6" style="margin-top:10px;">
+
+                <div class="row">
+
+                    <div style="flex:70%; margin:10px;">
+                        <table class="table table-striped" >
+                            <thead>
+                            <tr>
+                                <th scope="col" colspan="6" style="text-align: center;">Lista de hechizos</th>
+                                
+                            </tr>
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th>Base</th>
+                                <th>Intermedio</th>
+                                <th>Avanzado</th>
+                                <th>Arcano</th>
+                                <th>Modificar</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="item in rowData" >
+                                <th scope="row">{{ item.spellName }}</th>
+
+                                <td v-if="parseInt(item.spellBase) <= parseInt(zeona)"><button v-on:click="castSpell(item.spellBase)" title="Lanzar" type="button" class="btn btn-primary" :value="item.spellBase">{{ item.spellBase }}</button></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellBase" disabled>{{ item.spellBase }}</button></td>
+
+                                <td v-if="parseInt(item.spellInter) <= parseInt(zeona)"><button v-on:click="castSpell(item.spellInter)" title="Lanzar" type="button" class="btn btn-primary" :value="item.spellInter">{{ item.spellInter }}</button></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellInter" disabled>{{ item.spellInter }}</button></td>
+
+                                <td v-if="parseInt(item.spellAdvanced) <= parseInt(zeona)"><button v-on:click="castSpell(item.spellAdvanced)" title="Lanzar" type="button" class="btn btn-primary" :value="item.spellAdvanced">{{ item.spellAdvanced }}</button></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellAdvanced" disabled>{{ item.spellAdvanced }}</button></td>
+
+                                <td v-if="parseInt(item.spellArcane) <= parseInt(zeona)"><button v-on:click="castSpell(item.spellArcane)" title="Lanzar" type="button" class="btn btn-primary" :value="item.spellArcane">{{ item.spellArcane }}</button></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellArcane" disabled>{{ item.spellArcane }}</button></td>
+                                
+                                <td><button type="button" v-on:click="removeSpell(item.spellName)" class="btn-add" title="Eliminar"><i data-feather="x-circle" style="color: #9b0000 !important;"></i></button></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><input v-model="spellName" placeholder="Hechizo" class="form-control" type="text" id="name" name="name" size="10" required></th>
+                                <td><input v-model="spellBase" placeholder="50" class="form-control" type="number" id="base" name="base" size="5" required></td>
+                                <td><input v-model="spellInter" placeholder="120" class="form-control" type="number" id="inter" name="inter" size="5" required></td>
+                                <td><input v-model="spellAdvanced" placeholder="180" class="form-control" type="number" id="advanced" name="advanced" size="5" required></td>
+                                <td><input v-model="spellArcane" placeholder="250" class="form-control" type="number" id="arcane" name="arcane" size="5" required></td>
+                                <td><button type="button" v-on:click="addSpell" class="btn-add" title="Añadir"><i data-feather="plus-circle" style="color: green !important;"></i></button></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3" style="margin-top:10px;">
+
                 <div class="row">
                     <div class="card">
                         <div class="list-group list-group-flush">
                             <div class="list-group-item">
                                 <div id="turn" class="row">
-                                    <div class="column" style="flex:70%">
+                                    <div class="column" style="flex:40%">
                                         <div style="text-align: center;">
                                             <h2 style="display:inline;">Turno: {{turn_number}}</h2>
                                         </div>
                                     </div>
                                     <div class="column" style="flex:10%">
-                                        <button v-on:click="addturn" id="add-turn" type="button" class="btn btn-success">+1</button>
+                                        <button v-on:click="addturn" title="Pasar turno" id="add-turn" type="button" class="btn btn-success">+1</button>
                                     </div>
                                     <div class="column" style="flex:10%">
-                                        <button v-on:click="reset" type="button" class="btn btn-danger">Reset</button>
+                                        <button v-on:click="reset" title="Reiniciar turno" type="button" class="btn btn-danger">Reset</button>
                                     </div>
                                 </div>
                             </div>
@@ -176,19 +263,18 @@
                     </div>
                 </div>
 
-                <div class="row">
-
-                    <div class="card" style="flex: 25%;">
+                <div style="flex: 25%; padding-left: 0 !important;">
+                    <div class="card" >
                         <div class="list-group list-group-flush">
 
                             <div class="list-group-item">
                                 <div class="container">
                                     <div class="row">
-                                        <div class="column divide">
+                                        <div class="column">
                                             <label for="zeona">Zeon acumulado: </label>
                                         </div>
-                                        <div class="column divide">
-                                            <input v-model="zeona" type="number" id="zeona" name="zeona" required size="10" value="{{zeona}}">
+                                        <div class="column">
+                                            <input v-model="zeona" class="form-control" type="number" id="zeona" name="zeona" required size="10">
                                         </div>
                                     </div>
                                 </div>
@@ -197,11 +283,11 @@
                             <div class="list-group-item">
                                 <div class="container">
                                     <div class="row">
-                                        <div class="column divide">
+                                        <div class="column">
                                             <label for="zeonp">Zeon perdido: </label>
                                         </div>
-                                        <div class="column divide">
-                                            <input v-model="zeonp" type="number" id="zeonp" name="zeonp" required size="10" value="{{zeonp}}">
+                                        <div class="column">
+                                            <input v-model="zeonp" class="form-control" type="number" id="zeonp" name="zeonp" required size="10">
                                         </div>
                                     </div>
                                 </div>
@@ -210,11 +296,11 @@
                             <div class="list-group-item">
                                 <div class="container">
                                     <div class="row">
-                                        <div class="column divide">
+                                        <div class="column divide" style="max-width: 49%;">
                                             <label for="acu">Acumular: </label>
                                         </div>
                                         <div class="column divide">
-                                            <input v-model="acu" type="checkbox" id="acu" name="acu">
+                                            <input v-model="acu" class="form-check-input" type="checkbox" id="acu" name="acu">
                                         </div>
                                     </div>
                                 </div>
@@ -222,53 +308,36 @@
 
                         </div>
                     </div>
-
-                    <table class="table table-striped" style="flex:70%; margin:10px;">
-                        <thead>
-                          <tr>
-                            <th scope="col" colspan="5" style="text-align: center;">Lista de hechizos <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#add-spell-modal"><i data-feather="plus-circle"></i></button></th>
-                            
-                          </tr>
-                          <tr>
-                            <th scope="col">Nombre</th>
-                            <th>Base</th>
-                            <th>Intermedio</th>
-                            <th>Avanzado</th>
-                            <th>Arcano</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th scope="row">Hechizo to guapo</th>
-                            <td><button type="button" class="btn btn-secondary">50</button></td>
-                            <td><button type="button" class="btn btn-secondary">120</button></td>
-                            <td><button type="button" class="btn btn-secondary">180</button></td>
-                            <td><button type="button" class="btn btn-secondary">250</button></td>
-                          </tr>
-                          <tr>
-                            <th scope="row">Hechizo to guapo 2</th>
-                            <td><button type="button" class="btn btn-secondary">50</button></td>
-                            <td><button type="button" class="btn btn-secondary">120</button></td>
-                            <td><button type="button" class="btn btn-secondary">180</button></td>
-                            <td><button type="button" class="btn btn-secondary">250</button></td>
-                          </tr>
-                          <tr>
-                            <th scope="row">Hechizo to guapo 3</th>
-                            <td><button type="button" class="btn btn-secondary">50</button></td>
-                            <td><button type="button" class="btn btn-secondary">120</button></td>
-                            <td><button type="button" class="btn btn-secondary">180</button></td>
-                            <td><button type="button" class="btn btn-secondary">250</button></td>
-                          </tr>
-                          <tr v-for="item in rowData" >
-                            <th scope="row">{{ item.spellName }}</th>
-                            <td>{{ item.spellBase }}</td>
-                            <td>{{ item.spellInter }}</td>
-                            <td>{{ item.spellAdvanced }}</td>
-                            <td>{{ item.spellArcane }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-
+                    <div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                  <th scope="col">Nombre</th>
+                                  <th scope="col">Zeon</th>
+                                  <th scope="col">Quitar</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <th scope="row">Luz</th>
+                                  <td>30</td>
+                                  <td><i data-feather="trash" style="color: #9b0000 !important;"></i></td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">Cosa celestial</th>
+                                  <td>20</td>
+                                  <td><i data-feather="trash" style="color: #9b0000 !important;"></i></td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">Total: </th>
+                                  <td colspan="2">50</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" colspan="3"><button class="btn btn-primary" style="width: 100%;">Lanzar</button></th>
+                                  </tr>
+                              </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </div>
@@ -276,67 +345,6 @@
         </div>
 
     </div>
-
-    <!-- MODAL -->
-    <div class="modal fade" id="add-spell-modal" tabindex="-1" aria-labelledby="Hechizo" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="hechizo">Añadir hechizo</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form>
-
-                    <div class="form-group m-2">
-                        <label for="name">Nombre:</label>
-                        <input v-model="spellName" type="text" class="form-control" id="name" placeholder="Crear Luz...">
-                    </div>
-
-                    <div class="form-group m-2">
-                        <label for="base">Base:</label>
-                        <input v-model="spellBase" type="number" class="form-control" id="base" placeholder="20">
-                    </div>
-
-                    <div class="form-group m-2">
-                        <label for="inter">Intermedio:</label>
-                        <input v-model="spellInter" type="number" class="form-control" id="inter" placeholder="50">
-                    </div>
-
-                    <div class="form-group m-2">
-                        <label for="advanced">Avanzado:</label>
-                        <input v-model="spellAdvanced" type="number" class="form-control" id="advanced" placeholder="100">
-                    </div>
-
-                    <div class="form-group m-2">
-                        <label for="arcane">Arcano:</label>
-                        <input v-model="spellArcane" type="number" class="form-control" id="arcane" placeholder="200">
-                    </div>
-                    <div class="form-group m-2">
-                        <label for="vias">Tipo de vía:</label>
-                        <select v-model="spellVia" class="form-control" id="vias">
-                          <option>Luz</option>
-                          <option>Oscuridad</option>
-                          <option>Creación</option>
-                          <option>Destrucción</option>
-                          <option>Fuego</option>
-                          <option>Agua</option>
-                          <option>Tierra</option>
-                          <option>Aire</option>
-                          <option>Esencia</option>
-                          <option>Ilusión</option>
-                          <option>Nigromancia</option>
-                        </select>
-                      </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button v-on:click="addSpell" type="button" class="btn btn-success" data-bs-dismiss="modal">Añadir</button>
-                      </div>
-                </form>
-            </div>
-          </div>
-        </div>
-      </div>
 
     <script>
         feather.replace()

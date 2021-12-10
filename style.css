@@ -3,6 +3,11 @@ html body {
     background-size: auto;
 }
 
+.container-fluid {
+    padding-right: 10% !important;
+    padding-left: 10% !important;
+}
+
 .center {
     margin: 0;
     position: absolute;
@@ -25,4 +30,17 @@ html body {
 	font: inherit;
 	cursor: pointer;
 	outline: inherit;
+}
+
+/* REMOVE ARROWS INPUT NUMBER */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
