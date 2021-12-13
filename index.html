@@ -29,6 +29,7 @@
                     readyToCast:[],
                     spellMantainList:[],
                     zeonToSpend: 0,
+                    mantainZeonToSpend: 0,
                     spellName: '',
                     spellBase: '',
                     spellInter: '',
@@ -39,7 +40,6 @@
                     spellInterMantain: '',
                     spellAdvancedMantain: '',
                     spellArcaneMantain: '',
-                    mantenerCheckbox: '',
                 },
                 beforeMount() {
                     window.addEventListener("beforeunload", this.preventNav)
@@ -73,6 +73,12 @@
                                 this.rzeon = parseInt(this.rzeon) - parseInt(this.rzeon);
                             }
                         };
+                        if (this.spellMantainList.length >= 1) {
+                            /*this.spellMantainList.forEach(function (spell) {
+                                this.rzeon = parseInt(this.rzeon) - parseInt(spell.spellMantain);
+                            }.bind(this));*/
+                            this.rzeon = parseInt(this.rzeon) - parseInt(this.mantainZeonToSpend);
+                        }
                     },
                     reset: function () {
                         this.turn_number = 0;
@@ -80,6 +86,7 @@
                         this.zeonp = 0;
                         this.zeonToSpend = 0;
                         this.readyToCast = [];
+                        this.spellMantainList = [];
                     },
                     lockUnlock: function () {
                         this.lock = (this.lock + 1) % 2;
@@ -129,17 +136,56 @@
                         };
                         this.zeonToSpend = parseInt(this.zeonToSpend) + parseInt(loadSpellZeon);
                         this.readyToCast.push(load_spell);
-                        //this.zeona = parseInt(this.zeona) - parseInt(spellZeon);
                     },
                     unloadSpell: function (unloadSpellIndex, unloadSpellZeon) {
                         let i = this.readyToCast.map(item => item.spellIndex).indexOf(unloadSpellIndex);
                         this.readyToCast.splice(i, 1);
                         this.zeonToSpend = parseInt(this.zeonToSpend) - parseInt(unloadSpellZeon);
                     },
+                    unmantainSpell: function (unmantainSpellIndex) {
+                        let i = this.spellMantainList.map(item => item.spellIndex).indexOf(unmantainSpellIndex);
+                        this.spellMantainList.splice(i, 1);
+                        //Revisar                      
+                        this.mantainZeonToSpend = 0;
+                            this.spellMantainList.forEach(function (spell) {
+                                let x = 0;
+                                x = spell.spellMantain;
+                                this.mantainZeonToSpend = parseInt(this.mantainZeonToSpend) + parseInt(x); 
+                            }.bind(this));
+                    },
                     castSpell: function () {
-                        this.spellMantainList = this.readyToCast.filter(function (entry) { return entry.spellMantainTurn === true; });
-                        console.log(this.spellMantainList);
-                        console.log(this.zeonToSpend);
+                        // Mantenimiento hechizos
+                        if (this.spellMantainList.length >=1 ) {
+                            let addMantainSpell = this.readyToCast.filter(function (entry) { return entry.spellMantainTurn === true; });
+                            if (addMantainSpell.length >= 1) {
+                                this.spellMantainList.push(addMantainSpell[0]);
+                            }
+                            this.mantainZeonToSpend = 0;
+                            this.spellMantainList.forEach(function (spell) {
+                                let x = 0;
+                                x = spell.spellMantain;
+                                this.mantainZeonToSpend = parseInt(this.mantainZeonToSpend) + parseInt(x); 
+                            }.bind(this));
+
+                        } else {
+                            this.spellMantainList = this.readyToCast.filter(function (entry) { return entry.spellMantainTurn === true; });
+                            this.mantainZeonToSpend = 0;
+                            this.spellMantainList.forEach(function (spell) {
+                                this.mantainZeonToSpend = parseInt(this.mantainZeonToSpend) + parseInt(spell.spellMantain); 
+                            }.bind(this));
+                        }
+                        // Gasto Zeon
+                        this.zeona = parseInt(this.zeona) - parseInt(this.zeonToSpend);
+                        if (parseInt(this.zeona) >= 10) {
+                            this.rzeon = parseInt(this.rzeon) + 10;
+                            this.zeonp = parseInt(this.zeonp) + (parseInt(this.zeona) - 10)
+                            this.zeona = 0;
+                        } else {
+                            this.rzeon = parseInt(this.rzeon) + parseInt(this.zeona);
+                            this.zeona = 0;
+                        }
+                        this.readyToCast = [];
+                        this.zeonToSpend = 0;
                     }
                 }
             })
@@ -244,17 +290,17 @@
                             <tr v-for="item in spellBook" >
                                 <th scope="row">{{ item.spellName }}</th>
 
-                                <td v-if="parseInt(item.spellBase) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellBase, item.spellBaseMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellBase">{{ item.spellBase }}</button><span> M: {{item.spellBaseMantain}}</span></td>
-                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellBase" disabled>{{ item.spellBase }}</button><span> M: {{item.spellBaseMantain}}</span></td>
+                                <td v-if="parseInt(item.spellBase) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellBase, item.spellBaseMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellBase">{{ item.spellBase }}</button><span v-if="item.spellBaseMantain"> M: {{item.spellBaseMantain}}</span></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellBase" disabled>{{ item.spellBase }}</button><span v-if="item.spellBaseMantain"> M: {{item.spellBaseMantain}}</span></td>
 
-                                <td v-if="parseInt(item.spellInter) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellInter, item.spellInterMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellInter">{{ item.spellInter }}</button><span> M: {{item.spellInterMantain}}</span></td>
-                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellInter" disabled>{{ item.spellInter }}</button><span> M: {{item.spellInterMantain}}</span></td>
+                                <td v-if="parseInt(item.spellInter) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellInter, item.spellInterMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellInter">{{ item.spellInter }}</button><span v-if="item.spellInterMantain"> M: {{item.spellInterMantain}}</span></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellInter" disabled>{{ item.spellInter }}</button><span v-if="item.spellInterMantain"> M: {{item.spellInterMantain}}</span></td>
 
-                                <td v-if="parseInt(item.spellAdvanced) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellAdvanced, item.spellAdvancedMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellAdvanced">{{ item.spellAdvanced }}</button><span> M: {{item.spellAdvancedMantain}}</span></td>
-                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellAdvanced" disabled>{{ item.spellAdvanced }}</button><span> M: {{item.spellAdvancedMantain}}</span></td>
+                                <td v-if="parseInt(item.spellAdvanced) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellAdvanced, item.spellAdvancedMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellAdvanced">{{ item.spellAdvanced }}</button><span v-if="item.spellAdvancedMantain"> M: {{item.spellAdvancedMantain}}</span></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellAdvanced" disabled>{{ item.spellAdvanced }}</button><span v-if="item.spellAdvancedMantain"> M: {{item.spellAdvancedMantain}}</span></td>
 
-                                <td v-if="parseInt(item.spellArcane) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellArcane, item.spellArcaneMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellArcane">{{ item.spellArcane }}</button><span> M: {{item.spellArcaneMantain}}</span></td>
-                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellArcane" disabled>{{ item.spellArcane }}</button><span> M: {{item.spellArcaneMantain}}</span></td>
+                                <td v-if="parseInt(item.spellArcane) <= parseInt(zeona)"><button v-on:click="loadSpell(item.spellName, item.spellArcane, item.spellArcaneMantain)" title="Cargar" type="button" class="btn btn-primary" :value="item.spellArcane">{{ item.spellArcane }}</button><span v-if="item.spellArcaneMantain"> M: {{item.spellArcaneMantain}}</span></td>
+                                <td v-else title="Zeon insuficiente"><button type="button" class="btn btn-secondary" :value="item.spellArcane" disabled>{{ item.spellArcane }}</button><span v-if="item.spellArcaneMantain"> M: {{item.spellArcaneMantain}}</span></td>
                                 
                                 <td><button type="button" v-on:click="removeSpell(item.spellName)" class="btn-add" title="Eliminar"><i data-feather="x-circle" style="color: #9b0000 !important;"></i></button></td>
                             </tr>
@@ -358,6 +404,7 @@
                     <div>
                         <table class="table">
                             <thead>
+                                <tr><th scope="col" colspan="4" style="text-align: center;">Hechizos a lanzar:</th></tr>
                                 <tr>
                                   <th scope="col">Nombre</th>
                                   <th scope="col">Zeon</th>
@@ -369,8 +416,9 @@
                                 <tr  v-for="item in readyToCast">
                                   <th scope="row">{{ item.spellName }}</th>
                                   <td>{{ item.spellZeon }}</td>
-                                  <td><input v-model="item.spellMantainTurn" title="Mantener" class="form-check-input" type="checkbox" id="mantain" name="mantain" size="2" required> / {{item.spellMantain}}</td>
-                                  <td><button class="btn-add" type="button" v-on:click="unloadSpell(item.spellIndex, item.spellZeon)" title="Eliminar"><i data-feather="trash" style="color: #9b0000 !important;"></i></button></td>
+                                  <td v-if="item.spellMantain"><input v-model="item.spellMantainTurn" title="Mantener" class="form-check-input" type="checkbox" id="mantain" name="mantain" size="2"> <span>/ {{item.spellMantain}}</span></td>
+                                  <td v-else><input v-model="item.spellMantainTurn" title="Mantener" class="form-check-input" type="checkbox" id="mantain" name="mantain" size="2" disabled></td>
+                                  <td><button class="btn-add" type="button" v-on:click="unloadSpell(item.spellIndex, item.spellZeon)" title="Eliminar"><i data-feather="trash-2" style="color: #9b0000 !important;"></i></button></td>
                                 </tr>
                                 <tr v-if="parseInt(this.zeonToSpend) <= parseInt(this.zeona)">
                                     <th scope="row">Total: </th>
@@ -385,6 +433,31 @@
                                 </tr>
                                 <tr v-else>
                                     <th scope="row" colspan="4" title="Zeon insuficiente"><button class="btn btn-primary" style="width: 100%;" disabled>Lanzar</button></th>
+                                </tr>
+                              </tbody>
+                        </table>
+                    </div>
+                    <div v-if="this.spellMantainList.length >= 1">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" colspan="3" style="text-align: center;">Hechizos mantenidos:</th>
+                                </tr>
+                                <tr>
+                                  <th scope="col">Nombre</th>
+                                  <th scope="col">Zeon / turno</th>
+                                  <th scope="col">Dejar de mantener</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr  v-for="item in spellMantainList">
+                                  <th scope="row">{{ item.spellName }}</th>
+                                  <td>{{ item.spellMantain }}</td>
+                                  <td><button class="btn-add" type="button" v-on:click="unmantainSpell(item.spellIndex)" title="Eliminar"><i data-feather="trash-2" style="color: #9b0000 !important;"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Zeon / turno: </th>
+                                    <td colspan="3">{{ this.mantainZeonToSpend }}</td>
                                 </tr>
                               </tbody>
                         </table>
