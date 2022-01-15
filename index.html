@@ -15,7 +15,7 @@
             new Vue({
                 el: '#zeon',
                 data: {
-                    isEditing: false,
+                    isEditing: true,
                     turn_number: 0,
                     zeon: 0,
                     rzeon: 0,
@@ -51,8 +51,8 @@
                 beforeRouteLeave(to, from, next) {
                     if (this.isEditing) {
                     if (!window.confirm("Salir destruirá los datos introducidos")) {
-                        return;
-                    }
+                            return;
+                        }
                     }
                     next();
                 },
@@ -177,8 +177,8 @@
                         // Gasto Zeon
                         this.zeona = parseInt(this.zeona) - parseInt(this.zeonToSpend);
                         if (parseInt(this.zeona) >= 10) {
-                            this.rzeon = parseInt(this.rzeon) + 10;
-                            this.zeonp = parseInt(this.zeonp) + (parseInt(this.zeona) - 10)
+                            this.rzeon = parseInt(this.rzeon) + (parseInt(this.zeona) - 10);
+                            this.zeonp = parseInt(this.zeonp) + 10;
                             this.zeona = 0;
                         } else {
                             this.rzeon = parseInt(this.rzeon) + parseInt(this.zeona);
