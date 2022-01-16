@@ -216,7 +216,7 @@
                                         <label for="zeon">Zeon máximo: </label>
                                     </div>
                                     <div class="column divide">
-                                        <input v-model="zeon" :disabled="lock == 1" class="form-control" style="max-width: 75% !important; display: inline;" type="number" id="zeon" name="zeon" size="6" required>
+                                        <input v-model="zeon" :disabled="lock == 1" class="form-control" type="number" id="zeonMaximo" name="zeon" size="6" required>
                                         <button v-on:click="lockUnlock" title="Bloquear Zeon" type="button" class="btn-add"><i data-feather="lock"></i></button>
                                     </div>
                                 </div>
@@ -422,11 +422,11 @@
                                 </tr>
                                 <tr v-if="parseInt(this.zeonToSpend) <= parseInt(this.zeona)">
                                     <th scope="row">Total: </th>
-                                    <td colspan="3">{{ this.zeonToSpend }}</td>
+                                    <td colspan="3"><input v-model="zeonToSpend" title="ZeonToSpend" class="form-control" type="number" size="2"></td>
                                 </tr>
                                 <tr v-else>
                                     <th scope="row" style="color:#9b0000">Total: </th>
-                                    <td colspan="3" style="color:#9b0000">{{ this.zeonToSpend }}</td>
+                                    <td colspan="3" style="color:#9b0000"><input v-model="zeonToSpend" title="ZeonToSpend" class="form-control" type="number" size="2"></td>
                                 </tr>
                                 <tr v-if="parseInt(this.zeonToSpend) <= parseInt(this.zeona)">
                                     <th scope="row" colspan="4"><button v-on:click="castSpell()" class="btn btn-primary" style="width: 100%;">Lanzar</button></th>

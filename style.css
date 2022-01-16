@@ -37,6 +37,11 @@ html body {
 	outline: inherit;
 }
 
+#zeonMaximo{
+  max-width: 75% !important; 
+  display: inline;
+}
+
 /* REMOVE ARROWS INPUT NUMBER */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -48,4 +53,18 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* MEDIA QUERIES */
+@media (max-width:1757px) {
+  .container-fluid {
+    padding-right: 2% !important;
+    padding-left: 2% !important;
+  }
+}
+
+@media (max-width:1464px) {
+  #zeonMaximo {
+    max-width: 60% !important;
+  }
 }
