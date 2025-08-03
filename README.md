@@ -29,6 +29,7 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Overview](#overview-1)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -122,6 +123,10 @@ Build  from the source and install dependencies:
 3. **Execute index.html file**
 
 Open with web browser index.html file
+
+### Overview
+
+![UI Overview](images/anima-overview.png)
 
 ---
 
