@@ -32,7 +32,6 @@
   - [Overview](#overview-1)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -166,18 +165,6 @@ Open with web browser index.html file
 ## License
 
 This project is protected under the [MIT LICENSE](https://opensource.org/license/mit) License. For more details, refer to the [LICENSE](./LICENSE.txt) file.
-
----
-
-## Acknowledgments
-
-- Credit `contributors`, `inspiration`, `references`, etc.
-
-<div align="right">
-
-[![][back-to-top]](#top)
-
-</div>
 
 
 [back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
