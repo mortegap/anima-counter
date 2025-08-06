@@ -165,7 +165,7 @@ Open with web browser index.html file
 
 ## License
 
- is protected under the [LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
+This project is protected under the [MIT LICENSE](https://opensource.org/license/mit) License. For more details, refer to the [LICENSE](./LICENSE.txt) file.
 
 ---
 
