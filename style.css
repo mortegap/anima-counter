@@ -216,3 +216,18 @@ body.dark-mode .theme-toggle-btn {
 body.dark-mode .theme-toggle-btn:hover {
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
 }
+
+/* LOCK BUTTON CENTERING */
+.column.d-flex.align-items-center {
+    justify-content: center;
+    gap: 10px;
+}
+
+.column.d-flex.align-items-center .btn-add {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+}
