@@ -31,4 +31,4 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 # Comando para ejecutar la aplicación
-CMD ["node", "server-simple.js"]
+CMD ["node", "src/server.js"]
