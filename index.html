@@ -103,6 +103,53 @@
             background-color: rgba(52, 58, 64, 1);
             border-color: rgba(255, 255, 255, 0.3);
         }
+
+        /* Force auth forms to always be white, even in dark mode */
+        body.dark-mode .auth-card {
+            background: white !important;
+            color: #212529 !important;
+        }
+
+        body.dark-mode .auth-card .card-body {
+            background: white !important;
+            color: #212529 !important;
+        }
+
+        body.dark-mode .auth-card .form-control {
+            background-color: #fff !important;
+            color: #212529 !important;
+            border-color: #ced4da !important;
+        }
+
+        body.dark-mode .auth-card .form-label {
+            color: #212529 !important;
+        }
+
+        body.dark-mode .auth-card .btn-link {
+            color: #0d6efd !important;
+        }
+
+        body.dark-mode .auth-card .btn-primary {
+            background-color: #0d6efd !important;
+            border-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        body.dark-mode .auth-card .btn-primary:hover {
+            background-color: #0b5ed7 !important;
+            border-color: #0a58ca !important;
+        }
+
+        body.dark-mode .auth-card .btn-success {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            color: white !important;
+        }
+
+        body.dark-mode .auth-card .btn-success:hover {
+            background-color: #157347 !important;
+            border-color: #146c43 !important;
+        }
     </style>
 
     <script>
@@ -164,6 +211,8 @@
                     loading: false,
                     error: null,
                     initialized: false,
+                    // Variables de UI
+                    isDarkMode: false,
                 },
                 beforeMount() {
                     window.addEventListener("beforeunload", this.preventNav)
@@ -174,6 +223,13 @@
                 mounted() {
                     console.log('MOUNTED EJECUTÁNDOSE - Path:', window.location.pathname);
                     this.initialized = true;
+
+                    // Load theme preference
+                    const savedTheme = localStorage.getItem('theme');
+                    this.isDarkMode = savedTheme === 'dark';
+                    if (this.isDarkMode) {
+                        document.body.classList.add('dark-mode');
+                    }
 
                     // Hide initial loading screen
                     const initialLoading = document.getElementById('initial-loading');
@@ -739,6 +795,17 @@
                         this.mantainZeonToSpend = this.spellMantainList.reduce((total, spell) => {
                             return total + parseInt(spell.spellMantain || spell.spell_mantain || 0);
                         }, 0);
+                    },
+
+                    // ===== MÉTODOS DE UI =====
+                    toggleTheme() {
+                        this.isDarkMode = !this.isDarkMode;
+                        document.body.classList.toggle('dark-mode');
+                        localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+                        // Reemplazar iconos de Feather después de cambiar el tema
+                        this.$nextTick(() => {
+                            feather.replace();
+                        });
                     }
                 }
             })
@@ -761,14 +828,15 @@
     <div class="container-fluid" id="zeon" v-cloak :class="{ 'auth-mode': currentView === 'login' || currentView === 'register' }">
 
         <!-- Top right buttons container -->
-        <div class="top-right-buttons">
+        <div class="top-right-buttons" v-if="isAuthenticated">
             <!-- Theme toggle button -->
-            <button id="theme-toggle" title="Cambiar tema" type="button" class="btn btn-outline-secondary">
-                <i id="theme-icon" data-feather="moon"></i>
+            <button @click="toggleTheme" title="Cambiar tema" type="button" class="btn btn-outline-secondary">
+                <i v-if="isDarkMode" data-feather="sun"></i>
+                <i v-else data-feather="moon"></i>
             </button>
 
-            <!-- Logout button (only shown when authenticated) -->
-            <button v-if="isAuthenticated" @click="logout" title="Cerrar sesión" type="button" class="btn btn-outline-secondary">
+            <!-- Logout button -->
+            <button @click="logout" title="Cerrar sesión" type="button" class="btn btn-outline-secondary">
                 <i data-feather="log-out"></i>
             </button>
         </div>
