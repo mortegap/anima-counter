@@ -81,6 +81,27 @@
             align-items: center;
             justify-content: center;
             padding: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .top-right-buttons .btn:hover {
+            background-color: rgba(255, 255, 255, 1);
+            border-color: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Dark mode button styles */
+        body.dark-mode .top-right-buttons .btn {
+            background-color: rgba(52, 58, 64, 0.9);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        body.dark-mode .top-right-buttons .btn:hover {
+            background-color: rgba(52, 58, 64, 1);
+            border-color: rgba(255, 255, 255, 0.3);
         }
     </style>
 
@@ -106,10 +127,8 @@
                     },
                     registerForm: {
                         username: '',
-                        email: '',
                         password: '',
-                        confirmPassword: '',
-                        displayName: ''
+                        confirmPassword: ''
                     },
                     // Variables de estado del juego
                     turn_number: 0,
@@ -294,9 +313,7 @@
                                 method: 'POST',
                                 body: JSON.stringify({
                                     username: this.registerForm.username,
-                                    email: this.registerForm.email,
-                                    password: this.registerForm.password,
-                                    displayName: this.registerForm.displayName
+                                    password: this.registerForm.password
                                 })
                             });
 
@@ -329,7 +346,7 @@
                         localStorage.removeItem('currentUser');
 
                         this.loginForm = { username: '', password: '' };
-                        this.registerForm = { username: '', email: '', password: '', confirmPassword: '', displayName: '' };
+                        this.registerForm = { username: '', password: '', confirmPassword: '' };
 
                         window.history.pushState({}, '', '/login');
                     },
@@ -795,14 +812,6 @@
                             <div class="mb-3">
                                 <label for="registerUsername" class="form-label">Usuario</label>
                                 <input v-model="registerForm.username" type="text" class="form-control" id="registerUsername" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerEmail" class="form-label">Email</label>
-                                <input v-model="registerForm.email" type="email" class="form-control" id="registerEmail" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerDisplayName" class="form-label">Nombre para mostrar (opcional)</label>
-                                <input v-model="registerForm.displayName" type="text" class="form-control" id="registerDisplayName">
                             </div>
                             <div class="mb-3">
                                 <label for="registerPassword" class="form-label">Contraseña</label>

@@ -78,21 +78,25 @@ app.get('/health', (req, res) => {
 app.post('/api/auth/register', async (req, res) => {
   try {
     console.log('Registro recibido:', req.body);
-    const { username, email, password, displayName } = req.body;
+    const { username, password, email, displayName } = req.body;
 
     // Validación básica
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Usuario, email y contraseña son requeridos' });
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Usuario y contraseña son requeridos' });
     }
+
+    // Generar email y displayName por defecto si no se proporcionan
+    const userEmail = email || `${username}@anima-counter.local`;
+    const userDisplayName = displayName || username;
 
     // Verificar si el usuario ya existe
     const existingUser = await pool.query(
-      'SELECT id FROM users WHERE username = $1 OR email = $2',
-      [username, email]
+      'SELECT id FROM users WHERE username = $1',
+      [username]
     );
 
     if (existingUser.rows.length > 0) {
-      return res.status(409).json({ error: 'El usuario o email ya existe' });
+      return res.status(409).json({ error: 'El usuario ya existe' });
     }
 
     // Hash de la contraseña
@@ -103,7 +107,7 @@ app.post('/api/auth/register', async (req, res) => {
       INSERT INTO users (username, email, password_hash, display_name)
       VALUES ($1, $2, $3, $4)
       RETURNING id, username, email, display_name, created_at
-    `, [username, email, passwordHash, displayName || username]);
+    `, [username, userEmail, passwordHash, userDisplayName]);
 
     const newUser = userResult.rows[0];
 
