@@ -1,0 +1,10 @@
+# Archivos a excluir durante el build de Docker
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+.env
+.dockerignore
+Dockerfile
+docker-compose.yaml
