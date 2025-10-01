@@ -342,6 +342,10 @@
                         this.profiles = [];
                         this.currentView = 'login';
 
+                        // Limpiar listas temporales de hechizos (spellBook persiste)
+                        this.readyToCast = [];
+                        this.spellMantainList = [];
+
                         localStorage.removeItem('authToken');
                         localStorage.removeItem('currentUser');
 
@@ -411,7 +415,7 @@
                         if (!response.ok) {
                             if (response.status === 401) {
                                 this.logout();
-                                throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+                                throw new Error('Usuario o contraseña incorrectos.');
                             }
                             throw new Error(`Error ${response.status}: ${response.statusText}`);
                         }
@@ -463,17 +467,18 @@
                     },
 
                     updateLocalGameState(gameState) {
-                        this.turn_number = gameState.turn_number || 0;
-                        this.zeon = gameState.zeon || 0;
-                        this.rzeon = gameState.rzeon || 0;
-                        this.act = gameState.act || 0;
-                        this.rzeoni = gameState.rzeoni || 0;
-                        this.zeona = gameState.zeona || 0;
-                        this.zeonp = gameState.zeonp || 0;
-                        this.acu = gameState.acu || false;
-                        this.lock = gameState.lock_state || 0;
-                        this.zeonToSpend = gameState.zeon_to_spend || 0;
-                        this.mantainZeonToSpend = gameState.mantain_zeon_to_spend || 0;
+                        // Usar nullish coalescing (??) en lugar de OR (||) para permitir valores 0
+                        this.turn_number = gameState.turn_number ?? 0;
+                        this.zeon = gameState.zeon ?? 0;
+                        this.rzeon = gameState.rzeon ?? 0;
+                        this.act = gameState.act ?? 0;
+                        this.rzeoni = gameState.rzeoni ?? 0;
+                        this.zeona = gameState.zeona ?? 0;
+                        this.zeonp = gameState.zeonp ?? 0;
+                        this.acu = gameState.acu ?? false;
+                        this.lock = gameState.lock_state ?? 0;
+                        this.zeonToSpend = gameState.zeon_to_spend ?? 0;
+                        this.mantainZeonToSpend = gameState.mantain_zeon_to_spend ?? 0;
                     },
 
                     async saveGameState() {
