@@ -1,8 +1,14 @@
 <template>
   <div class="spell-book-container">
-    <h3>Lista de Hechizos</h3>
+    <div class="spell-book-header">
+      <h3>Lista de Hechizos</h3>
+      <button id="btn-add-new-spell" @click="openSpellForm" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Añadir hechizo nuevo
+      </button>
+    </div>
+
     <div v-if="spellsStore.spellBook.length === 0" class="empty-state">
-      No hay hechizos guardados. Añade uno nuevo arriba.
+      No hay hechizos guardados. Añade uno nuevo con el botón de arriba.
     </div>
     <div v-else class="table-responsive">
       <table class="table">
@@ -11,12 +17,12 @@
             <th>Nombre</th>
             <th>Vía</th>
             <th>Base</th>
-            <th>Inter</th>
-            <th>Avanz</th>
-            <th>Arcano</th>
             <th>Mant Base</th>
+            <th>Inter</th>
             <th>Mant Inter</th>
+            <th>Avanz</th>
             <th>Mant Avanz</th>
+            <th>Arcano</th>
             <th>Mant Arcano</th>
             <th>Acciones</th>
           </tr>
@@ -25,14 +31,46 @@
           <tr v-for="spell in spellsStore.spellBook" :key="spell.id">
             <td>{{ spell.spell_name }}</td>
             <td>{{ spell.spell_via || '-' }}</td>
-            <td>{{ spell.spell_base }}</td>
-            <td>{{ spell.spell_inter }}</td>
-            <td>{{ spell.spell_advanced }}</td>
-            <td>{{ spell.spell_arcane }}</td>
-            <td>{{ spell.spell_base_mantain || 0 }}</td>
-            <td>{{ spell.spell_inter_mantain || 0 }}</td>
-            <td>{{ spell.spell_advanced_mantain || 0 }}</td>
-            <td>{{ spell.spell_arcane_mantain || 0 }}</td>
+            <td>
+              <button
+                @click="handleAddToReadyToCast(spell, 'base')"
+                class="btn btn-zeon btn-sm"
+                :title="`Preparar ${spell.spell_name} (Base)`"
+              >
+                {{ spell.spell_base }}
+              </button>
+            </td>
+            <td>{{ spell.spell_base_mantain || '-' }}</td>
+            <td>
+              <button
+                @click="handleAddToReadyToCast(spell, 'inter')"
+                class="btn btn-zeon btn-sm"
+                :title="`Preparar ${spell.spell_name} (Intermedio)`"
+              >
+                {{ spell.spell_inter }}
+              </button>
+            </td>
+            <td>{{ spell.spell_inter_mantain || '-' }}</td>
+            <td>
+              <button
+                @click="handleAddToReadyToCast(spell, 'advanced')"
+                class="btn btn-zeon btn-sm"
+                :title="`Preparar ${spell.spell_name} (Avanzado)`"
+              >
+                {{ spell.spell_advanced }}
+              </button>
+            </td>
+            <td>{{ spell.spell_advanced_mantain || '-' }}</td>
+            <td>
+              <button
+                @click="handleAddToReadyToCast(spell, 'arcane')"
+                class="btn btn-zeon btn-sm"
+                :title="`Preparar ${spell.spell_name} (Arcano)`"
+              >
+                {{ spell.spell_arcane }}
+              </button>
+            </td>
+            <td>{{ spell.spell_arcane_mantain || '-' }}</td>
             <td>
               <button
                 @click="handleRemoveSpell(spell.spell_name)"
@@ -45,16 +83,87 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Importar SpellForm como modal -->
+    <SpellForm ref="spellFormRef" />
   </div>
 </template>
 
 <script>
+import { ref } from 'vue';
 import { useSpellsStore } from '@/stores/spells';
+import { useGameStateStore } from '@/stores/gameState';
+import SpellForm from './SpellForm.vue';
 
 export default {
   name: 'SpellBook',
+  components: {
+    SpellForm
+  },
   setup() {
     const spellsStore = useSpellsStore();
+    const gameState = useGameStateStore();
+    const spellFormRef = ref(null);
+
+    const openSpellForm = () => {
+      if (spellFormRef.value) {
+        spellFormRef.value.showModal = true;
+      }
+    };
+
+    const handleAddToReadyToCast = async (spell, level) => {
+      try {
+        // Determinar el coste de zeon y mantenimiento según el nivel
+        let zeonCost = 0;
+        let mantainCost = 0;
+        let levelName = '';
+
+        console.log('🔍 Hechizo completo:', spell);
+        console.log('📊 Nivel seleccionado:', level);
+
+        switch(level) {
+          case 'base':
+            zeonCost = spell.spell_base;
+            mantainCost = spell.spell_base_mantain || 0;
+            levelName = 'Base';
+            break;
+          case 'inter':
+            zeonCost = spell.spell_inter;
+            mantainCost = spell.spell_inter_mantain || 0;
+            levelName = 'Intermedio';
+            break;
+          case 'advanced':
+            zeonCost = spell.spell_advanced;
+            mantainCost = spell.spell_advanced_mantain || 0;
+            levelName = 'Avanzado';
+            break;
+          case 'arcane':
+            zeonCost = spell.spell_arcane;
+            mantainCost = spell.spell_arcane_mantain || 0;
+            levelName = 'Arcano';
+            break;
+        }
+
+        const dataToSend = {
+          spell_id: spell.id,
+          spell_name: `${spell.spell_name} (${levelName})`,
+          spell_zeon: zeonCost,
+          spell_mantain: mantainCost,
+          spell_mantain_turn: false,
+          spell_index: gameState.readyToCast.length
+        };
+
+        console.log('📤 Datos a enviar:', dataToSend);
+
+        // Añadir a ready to cast con los campos correctos que espera el backend
+        await gameState.addToReadyToCast(dataToSend);
+
+        console.log(`✅ ${spell.spell_name} (${levelName}) añadido a hechizos a lanzar`);
+      } catch (error) {
+        console.error('❌ Error completo:', error);
+        console.error('❌ Respuesta del servidor:', error.response?.data);
+      }
+    };
 
     const handleRemoveSpell = async (spellName) => {
       if (confirm(`¿Eliminar el hechizo "${spellName}"?`)) {
@@ -62,13 +171,15 @@ export default {
           await spellsStore.removeSpell(spellName);
         } catch (error) {
           console.error('Error eliminando hechizo:', error);
-          alert('Error al eliminar el hechizo');
         }
       }
     };
 
     return {
       spellsStore,
+      spellFormRef,
+      openSpellForm,
+      handleAddToReadyToCast,
       handleRemoveSpell
     };
   }
@@ -84,9 +195,15 @@ export default {
   margin-bottom: 2rem;
 }
 
-.spell-book-container h3 {
-  margin-top: 0;
+.spell-book-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
+}
+
+.spell-book-header h3 {
+  margin: 0;
   color: #333;
 }
 
@@ -152,11 +269,31 @@ export default {
   background-color: #bb2d3b;
 }
 
+.btn-zeon {
+  background-color: #0d6efd;
+  color: white;
+  min-width: 45px;
+}
+
+.btn-zeon:hover {
+  background-color: #0b5ed7;
+  transform: scale(1.05);
+}
+
+.btn-success {
+  background-color: #198754;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #157347;
+}
+
 body.dark-mode .spell-book-container {
   background: #2d2d2d;
 }
 
-body.dark-mode .spell-book-container h3 {
+body.dark-mode .spell-book-header h3 {
   color: #e0e0e0;
 }
 

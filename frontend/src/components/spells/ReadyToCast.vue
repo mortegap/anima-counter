@@ -5,18 +5,21 @@
     <div class="load-spell-form">
       <div class="form-row">
         <input
+          id="ready-to-cast-spell-name"
           type="text"
           v-model="loadSpellName"
           placeholder="Nombre del hechizo"
           class="form-control"
         />
         <input
+          id="ready-to-cast-spell-zeon"
           type="number"
           v-model.number="loadSpellZeon"
           placeholder="Zeon"
           class="form-control"
         />
         <input
+          id="ready-to-cast-spell-mantain"
           type="number"
           v-model.number="loadSpellMantain"
           placeholder="Mantener"
@@ -28,7 +31,7 @@
       </div>
     </div>
 
-    <div v-if="spellsStore.readyToCast.length === 0" class="empty-state">
+    <div v-if="gameState.readyToCast.length === 0" class="empty-state">
       No hay hechizos cargados para lanzar.
     </div>
     <div v-else class="table-responsive">
@@ -38,25 +41,25 @@
             <th>Nombre</th>
             <th>Zeon</th>
             <th>Mantener</th>
-            <th>Mant. este turno</th>
+            <th>Mantener hechizo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="spell in spellsStore.readyToCast" :key="spell.spellIndex">
-            <td>{{ spell.spellName }}</td>
-            <td>{{ spell.spellZeon }}</td>
-            <td>{{ spell.spellMantain || 0 }}</td>
+          <tr v-for="spell in gameState.readyToCast" :key="spell.id">
+            <td>{{ spell.spell_name }}</td>
+            <td>{{ spell.spell_zeon }}</td>
+            <td>{{ spell.spell_mantain || 0 }}</td>
             <td>
               <input
                 type="checkbox"
-                v-model="spell.spellMantainTurn"
-                :disabled="!spell.spellMantain || spell.spellMantain === 0"
+                v-model="spell.spell_mantain_turn"
+                :disabled="!spell.spell_mantain || spell.spell_mantain === 0"
               />
             </td>
             <td>
               <button
-                @click="handleUnloadSpell(spell.spellIndex, spell.spellZeon)"
+                @click="handleUnloadSpell(spell.id)"
                 class="btn btn-warning btn-sm"
               >
                 Descargar
@@ -67,7 +70,7 @@
       </table>
 
       <div class="total-zeon">
-        <strong>Zeon Total a Gastar: {{ spellsStore.zeonToSpend }}</strong>
+        <strong>Zeon Total a Gastar: {{ gameState.zeonToSpend }}</strong>
       </div>
 
       <button @click="handleCastSpell" class="btn btn-primary btn-cast">
@@ -79,12 +82,12 @@
 
 <script>
 import { ref } from 'vue';
-import { useSpellsStore } from '@/stores/spells';
+import { useGameStateStore } from '@/stores/gameState';
 
 export default {
   name: 'ReadyToCast',
   setup() {
-    const spellsStore = useSpellsStore();
+    const gameState = useGameStateStore();
 
     const loadSpellName = ref('');
     const loadSpellZeon = ref(0);
@@ -92,16 +95,18 @@ export default {
 
     const handleLoadSpell = async () => {
       if (!loadSpellName.value || !loadSpellZeon.value) {
-        alert('Introduce nombre y cantidad de Zeon');
         return;
       }
 
       try {
-        await spellsStore.loadSpell(
-          loadSpellName.value,
-          loadSpellZeon.value,
-          loadSpellMantain.value
-        );
+        await gameState.addToReadyToCast({
+          spell_id: null,
+          spell_name: loadSpellName.value,
+          spell_zeon: loadSpellZeon.value,
+          spell_mantain: loadSpellMantain.value,
+          spell_mantain_turn: false,
+          spell_index: gameState.readyToCast.length
+        });
 
         // Limpiar formulario
         loadSpellName.value = '';
@@ -109,30 +114,27 @@ export default {
         loadSpellMantain.value = 0;
       } catch (error) {
         console.error('Error cargando hechizo:', error);
-        alert('Error al cargar el hechizo');
       }
     };
 
-    const handleUnloadSpell = async (spellIndex, spellZeon) => {
+    const handleUnloadSpell = async (spellId) => {
       try {
-        await spellsStore.unloadSpell(spellIndex, spellZeon);
+        await gameState.removeFromReadyToCast(spellId);
       } catch (error) {
         console.error('Error descargando hechizo:', error);
-        alert('Error al descargar el hechizo');
       }
     };
 
     const handleCastSpell = async () => {
       try {
-        await spellsStore.castSpell();
+        await gameState.clearAllReadyToCast();
       } catch (error) {
         console.error('Error lanzando hechizos:', error);
-        alert('Error al lanzar los hechizos');
       }
     };
 
     return {
-      spellsStore,
+      gameState,
       loadSpellName,
       loadSpellZeon,
       loadSpellMantain,

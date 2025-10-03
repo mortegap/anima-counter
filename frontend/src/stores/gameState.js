@@ -32,7 +32,7 @@ export const useGameStateStore = defineStore('gameState', {
     totalZeonAccumulated: (state) => state.zeona + state.zeonp,
 
     // Zeon disponible para gastar
-    availableZeon: (state) => state.zeon + state.zeona + state.zeonp - state.zeonToSpend - state.mantainZeonToSpend,
+    availableZeon: (state) => state.rzeon + state.zeona + state.zeonp - state.zeonToSpend - state.mantainZeonToSpend,
 
     // Total de hechizos a lanzar
     totalReadyToCast: (state) => state.readyToCast.length,
@@ -68,7 +68,9 @@ export const useGameStateStore = defineStore('gameState', {
         this.updateZeonToSpend()
 
         // Cargar spell mantain list
+        console.log('🔍 Cargando spell mantain list para perfil:', authStore.profile.id)
         const spellMantainResponse = await axios.get(`/api/spell-mantain/${authStore.profile.id}`)
+        console.log('📦 Respuesta spell mantain:', spellMantainResponse.data)
         this.spellMantainList = spellMantainResponse.data
         this.updateMantainZeonToSpend()
 
@@ -122,12 +124,34 @@ export const useGameStateStore = defineStore('gameState', {
 
     // Métodos de control de turnos
     async nextTurn() {
+      console.log('🔄 nextTurn() llamado')
+      console.log('📊 Valores antes:', {
+        turn_number: this.turn_number,
+        rzeon: this.rzeon,
+        mantainZeonToSpend: this.mantainZeonToSpend,
+        spellMantainList: this.spellMantainList
+      })
+
       this.turn_number++
 
-      // Regenerar zeon
-      if (this.rzeoni > 0) {
-        this.zeon = Math.min(this.zeon + this.rzeoni, this.rzeon)
+      // Acumular act en zeona solo si acu está activo
+      if (this.acu && this.act > 0) {
+        this.zeona += this.act
       }
+
+      // Restar zeon de mantenimiento de hechizos activos de la reserva de zeon
+      if (this.mantainZeonToSpend > 0) {
+        const rzeonAntes = this.rzeon
+        this.rzeon = Math.max(this.rzeon - this.mantainZeonToSpend, 0)
+        console.log(`✅ Zeon de mantenimiento restado: ${rzeonAntes} - ${this.mantainZeonToSpend} = ${this.rzeon}`)
+      } else {
+        console.log('⚠️ mantainZeonToSpend es 0 o undefined')
+      }
+
+      console.log('📊 Valores después:', {
+        turn_number: this.turn_number,
+        rzeon: this.rzeon
+      })
 
       await this.saveGameState()
     },
@@ -136,26 +160,52 @@ export const useGameStateStore = defineStore('gameState', {
       if (this.turn_number > 0) {
         this.turn_number--
 
-        // Revertir regeneración de zeon
-        if (this.rzeoni > 0) {
-          this.zeon = Math.max(this.zeon - this.rzeoni, 0)
+        // Revertir acumulación de act solo si acu está activo
+        if (this.acu && this.act > 0) {
+          this.zeona = Math.max(this.zeona - this.act, 0)
+        }
+
+        // Revertir resta de zeon de mantenimiento
+        if (this.mantainZeonToSpend > 0) {
+          this.rzeon = Math.min(this.rzeon + this.mantainZeonToSpend, this.zeon)
         }
 
         await this.saveGameState()
       }
     },
 
+    async newDay() {
+      // Sumar rzeoni (regeneración zeónica) a rzeon (reserva de zeon) sin superar zeon (máximo)
+      const newRzeon = this.rzeon + this.rzeoni
+      this.rzeon = Math.min(newRzeon, this.zeon)
+
+      await this.saveGameState()
+    },
+
+    async resetTurn() {
+      this.turn_number = 0
+      this.zeona = 0
+      await this.saveGameState()
+    },
+
     // Métodos de control de zeon
     updateZeonToSpend() {
       this.zeonToSpend = this.readyToCast.reduce((sum, spell) => {
-        return sum + (spell.zeon_cost || 0)
+        return sum + (spell.spell_zeon || spell.zeon_cost || 0)
       }, 0)
     },
 
     updateMantainZeonToSpend() {
+      console.log('🔍 updateMantainZeonToSpend() llamado')
+      console.log('📋 spellMantainList:', this.spellMantainList)
+
       this.mantainZeonToSpend = this.spellMantainList.reduce((sum, spell) => {
-        return sum + (spell.mantain_cost || 0)
+        const mantainValue = spell.spell_mantain || spell.mantain_cost || 0
+        console.log(`  - Hechizo: ${spell.spell_name}, mantain: ${mantainValue}`)
+        return sum + mantainValue
       }, 0)
+
+      console.log('✅ Total mantainZeonToSpend:', this.mantainZeonToSpend)
     },
 
     async addZeonAccumulated(amount, type = 'normal') {
@@ -168,12 +218,12 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async spendZeon(amount) {
-      this.zeon = Math.max(0, this.zeon - amount)
+      this.rzeon = Math.max(0, this.rzeon - amount)
       await this.saveGameState()
     },
 
     async addZeon(amount) {
-      this.zeon = Math.min(this.zeon + amount, this.rzeon)
+      this.rzeon = Math.min(this.rzeon + amount, this.zeon)
       await this.saveGameState()
     },
 
@@ -207,14 +257,15 @@ export const useGameStateStore = defineStore('gameState', {
       }
     },
 
-    async addToReadyToCast(spell) {
+    async addToReadyToCast(spellData) {
       const authStore = useAuthStore()
 
       try {
-        const response = await axios.post(`/api/ready-to-cast/${authStore.profile.id}`, {
-          spell_id: spell.id,
-          zeon_cost: spell.zeon_cost
-        })
+        console.log('🔍 addToReadyToCast - spellData recibido:', spellData)
+
+        const response = await axios.post(`/api/ready-to-cast/${authStore.profile.id}`, spellData)
+
+        console.log('✅ Respuesta del backend:', response.data)
         this.readyToCast.push(response.data)
         this.updateZeonToSpend()
       } catch (error) {
@@ -269,6 +320,31 @@ export const useGameStateStore = defineStore('gameState', {
       const authStore = useAuthStore()
 
       try {
+        // Restar zeon total a gastar de la reserva de zeon antes de limpiar
+        if (this.zeonToSpend > 0) {
+          this.rzeon = Math.max(this.rzeon - this.zeonToSpend, 0)
+          await this.saveGameState()
+        }
+
+        // Añadir a spell_mantain_list los hechizos marcados con spell_mantain_turn
+        const spellsToMantain = this.readyToCast.filter(spell => spell.spell_mantain_turn === true)
+
+        for (const spell of spellsToMantain) {
+          if (spell.spell_mantain && spell.spell_mantain > 0) {
+            await axios.post(`/api/spell-mantain/${authStore.profile.id}`, {
+              spell_id: spell.spell_id,
+              spell_name: spell.spell_name,
+              spell_mantain: spell.spell_mantain,
+              spell_index: this.spellMantainList.length
+            })
+          }
+        }
+
+        // Recargar la lista de hechizos mantenidos
+        const spellMantainResponse = await axios.get(`/api/spell-mantain/${authStore.profile.id}`)
+        this.spellMantainList = spellMantainResponse.data
+        this.updateMantainZeonToSpend()
+
         await axios.delete(`/api/ready-to-cast/${authStore.profile.id}`)
         this.readyToCast = []
         this.updateZeonToSpend()

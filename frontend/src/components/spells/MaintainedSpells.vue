@@ -2,7 +2,7 @@
   <div class="maintained-spells-container">
     <h3>Hechizos Mantenidos</h3>
 
-    <div v-if="spellsStore.spellMantainList.length === 0" class="empty-state">
+    <div v-if="gameState.spellMantainList.length === 0" class="empty-state">
       No hay hechizos mantenidos actualmente.
     </div>
     <div v-else class="table-responsive">
@@ -15,12 +15,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="spell in spellsStore.spellMantainList" :key="spell.spell_index">
-            <td>{{ spell.spell_name || spell.spellName }}</td>
-            <td>{{ spell.spell_mantain || spell.spellMantain }}</td>
+          <tr v-for="spell in gameState.spellMantainList" :key="spell.id">
+            <td>{{ spell.spell_name }}</td>
+            <td>{{ spell.spell_mantain }}</td>
             <td>
               <button
-                @click="handleUnmantainSpell(spell.spell_index)"
+                @click="handleUnmantainSpell(spell.id)"
                 class="btn btn-danger btn-sm"
               >
                 Eliminar
@@ -31,33 +31,32 @@
       </table>
 
       <div class="total-mantain">
-        <strong>Zeon Total de Mantenimiento: {{ spellsStore.mantainZeonToSpend }}</strong>
+        <strong>Zeon Total de Mantenimiento: {{ gameState.mantainZeonToSpend }}</strong>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { useSpellsStore } from '@/stores/spells';
+import { useGameStateStore } from '@/stores/gameState';
 
 export default {
   name: 'MaintainedSpells',
   setup() {
-    const spellsStore = useSpellsStore();
+    const gameState = useGameStateStore();
 
-    const handleUnmantainSpell = async (spellIndex) => {
+    const handleUnmantainSpell = async (spellId) => {
       if (confirm('¿Dejar de mantener este hechizo?')) {
         try {
-          await spellsStore.unmantainSpell(spellIndex);
+          await gameState.removeFromMantain(spellId);
         } catch (error) {
           console.error('Error eliminando mantenimiento:', error);
-          alert('Error al eliminar el mantenimiento');
         }
       }
     };
 
     return {
-      spellsStore,
+      gameState,
       handleUnmantainSpell
     };
   }

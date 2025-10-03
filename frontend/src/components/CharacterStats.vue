@@ -12,19 +12,21 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label">Zeon Máximo (RZeon)</label>
+          <label for="char-stats-rzeon" class="form-label">Zeon Máximo</label>
           <input
+            id="char-stats-rzeon"
             type="number"
             class="form-control"
-            v-model.number="localRzeon"
+            v-model.number="localZeon"
             :disabled="!isEditing"
             min="0"
           >
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">ACT</label>
+          <label for="char-stats-act" class="form-label">ACT</label>
           <input
+            id="char-stats-act"
             type="number"
             class="form-control"
             v-model.number="localAct"
@@ -34,8 +36,9 @@
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Regeneración Zeónica</label>
+          <label for="char-stats-rzeoni" class="form-label">Regeneración Zeónica</label>
           <input
+            id="char-stats-rzeoni"
             type="number"
             class="form-control"
             v-model.number="localRzeoni"
@@ -45,39 +48,25 @@
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Zeon Actual</label>
-          <div class="input-group">
-            <input
-              type="number"
-              class="form-control"
-              :value="gameState.zeon"
-              readonly
-            >
-            <span class="input-group-text">/ {{ gameState.rzeon }}</span>
-          </div>
+          <label for="char-stats-zeon-actual" class="form-label">Reserva de Zeon</label>
+          <input
+            id="char-stats-zeon-actual"
+            type="number"
+            class="form-control"
+            v-model.number="localRzeon"
+            @blur="updateRzeon"
+            @keyup.enter="updateRzeon"
+            min="0"
+          >
         </div>
       </div>
 
-      <div class="mt-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="text-muted">Zeon Acumulado:</span>
-          <span class="badge bg-info">{{ gameState.zeona }}</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="text-muted">Zeon Perdido:</span>
-          <span class="badge bg-warning">{{ gameState.zeonp }}</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="text-muted">Zeon Disponible:</span>
-          <span class="badge bg-success">{{ gameState.availableZeon }}</span>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useGameStateStore } from '@/stores/gameState'
 
 export default {
@@ -90,19 +79,26 @@ export default {
     const localRzeon = ref(gameState.rzeon)
     const localAct = ref(gameState.act)
     const localRzeoni = ref(gameState.rzeoni)
+    const localZeon = ref(gameState.zeon)
+
+    // Sincronizar automáticamente cuando cambia rzeon en el store
+    watch(() => gameState.rzeon, (newVal) => {
+      localRzeon.value = newVal
+    })
 
     // Sincronizar con el store cuando cambian
     const syncWithStore = () => {
       localRzeon.value = gameState.rzeon
       localAct.value = gameState.act
       localRzeoni.value = gameState.rzeoni
+      localZeon.value = gameState.zeon
     }
 
     const toggleEdit = async () => {
       if (isEditing.value) {
         // Guardar cambios
         await gameState.updateCharacteristics({
-          rzeon: localRzeon.value,
+          zeon: localZeon.value,
           act: localAct.value,
           rzeoni: localRzeoni.value
         })
@@ -113,13 +109,21 @@ export default {
       isEditing.value = !isEditing.value
     }
 
+    const updateRzeon = async () => {
+      if (localRzeon.value >= 0 && localRzeon.value !== gameState.rzeon) {
+        await gameState.updateCharacteristics({ rzeon: localRzeon.value })
+      }
+    }
+
     return {
       gameState,
       isEditing,
       localRzeon,
       localAct,
       localRzeoni,
-      toggleEdit
+      localZeon,
+      toggleEdit,
+      updateRzeon
     }
   }
 }

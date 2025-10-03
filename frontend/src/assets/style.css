@@ -1,6 +1,7 @@
 html body {
-    background: url(images/background.jpeg) no-repeat, url(https://media-waterdeep.cursecdn.com/attachments/0/84/background_texture.png) #f9f9f9;
-    background-size: auto;
+    background: url(/images/background.jpeg) no-repeat center center fixed;
+    background-size: cover;
+    background-color: #f9f9f9;
 }
 
 .container-fluid {
@@ -87,9 +88,30 @@ input[type=number] {
 
 /* DARK MODE STYLES */
 body.dark-mode {
-    background: url(images/background-dark.jpg) no-repeat, url(https://media-waterdeep.cursecdn.com/attachments/0/84/background_texture.png) #1a1a1a !important;
-    background-size: auto !important;
-    background-attachment: fixed !important;
+    background: url(/images/background-dark.jpg) no-repeat center center fixed !important;
+    background-size: cover !important;
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode .form-label,
+body.dark-mode a {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .text-muted {
+    color: #adb5bd !important;
+}
+
+body.dark-mode small {
     color: #e0e0e0 !important;
 }
 
@@ -113,6 +135,7 @@ body.dark-mode .list-group-item {
 
 body.dark-mode .table {
     color: #e0e0e0 !important;
+    --bs-table-bg: transparent !important;
 }
 
 body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > td,
@@ -124,6 +147,7 @@ body.dark-mode .table th,
 body.dark-mode .table td {
     border-color: #555555 !important;
     color: #f0f0f0 !important;
+    background-color: transparent !important;
 }
 
 body.dark-mode span {
@@ -186,6 +210,61 @@ body.dark-mode .btn-outline-secondary:hover {
     background-color: #6c757d !important;
     border-color: #6c757d !important;
     color: #fff !important;
+}
+
+body.dark-mode .btn-outline-primary {
+    color: #e0e0e0 !important;
+    border-color: #0d6efd !important;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+body.dark-mode .btn-outline-danger {
+    color: #e0e0e0 !important;
+    border-color: #dc3545 !important;
+}
+
+body.dark-mode .btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .btn-outline-success {
+    color: #e0e0e0 !important;
+    border-color: #198754 !important;
+}
+
+body.dark-mode .btn-outline-success:hover {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .progress {
+    background-color: #444444 !important;
+}
+
+body.dark-mode .progress-bar {
+    color: #fff !important;
+}
+
+body.dark-mode .badge {
+    color: #fff !important;
+}
+
+body.dark-mode .alert {
+    color: #fff !important;
+}
+
+body.dark-mode .input-group-text {
+    background-color: #444444 !important;
+    border-color: #666666 !important;
+    color: #e0e0e0 !important;
 }
 
 /* THEME TOGGLE BUTTON POSITIONING */

@@ -9,6 +9,10 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false
   }),
 
+  getters: {
+    currentProfileId: (state) => state.profile?.id || null
+  },
+
   actions: {
     async fetchProfile() {
       try {

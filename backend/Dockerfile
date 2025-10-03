@@ -1,34 +1,53 @@
-FROM node:18-alpine
+# ============================================
+# Stage 1: Dependencies
+# ============================================
+FROM node:18-alpine AS deps
 
-# Instalar wget para health check
-RUN apk add --no-cache wget
-
-# Crear directorio de la aplicación
 WORKDIR /usr/src/app
 
-# Copiar package.json y package-lock.json
+# Copiar solo archivos de dependencias para aprovechar cache de Docker
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci --omit=dev && npm cache clean --force
+# Instalar dependencias de producción
+RUN npm ci --omit=dev && \
+    npm cache clean --force
 
-# Copiar código fuente
-COPY . .
+# ============================================
+# Stage 2: Production
+# ============================================
+FROM node:18-alpine AS production
 
-# Crear usuario no root
+# Instalar wget para health check (paquete mínimo)
+RUN apk add --no-cache wget && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /usr/src/app
+
+# Copiar dependencias desde stage anterior (aprovecha cache)
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+
+# Copiar solo archivos necesarios para producción
+COPY package*.json ./
+COPY src ./src
+
+# Crear usuario no root para seguridad
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /usr/src/app
 
-# Cambiar permisos
-RUN chown -R nodejs:nodejs /usr/src/app
+# Cambiar a usuario sin privilegios
 USER nodejs
 
 # Exponer puerto
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+# Health check optimizado
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/health || exit 1
+
+# Variables de entorno por defecto
+ENV NODE_ENV=production \
+    PORT=3000
 
 # Comando para ejecutar la aplicación
 CMD ["node", "src/server.js"]

@@ -103,8 +103,13 @@ async function createReadyToCast(req, res) {
     const { profileId } = req.params;
     const { spell_id, spell_name, spell_zeon, spell_mantain, spell_mantain_turn, spell_index } = req.body;
 
+    console.log('🔍 Backend - createReadyToCast');
+    console.log('📦 profileId:', profileId);
+    console.log('📦 req.body:', req.body);
+
     // Validación básica
     if (!spell_name || spell_zeon == null) {
+      console.log('❌ Validación fallida:', { spell_name, spell_zeon });
       return res.status(400).json({ error: 'Nombre del hechizo y zeon son requeridos' });
     }
 

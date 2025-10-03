@@ -1,27 +1,41 @@
 <template>
-  <div class="container-fluid p-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2>Anima Counter</h2>
-        <p class="text-muted mb-0">{{ authStore.user?.username }} - {{ authStore.profile?.name }}</p>
+  <div>
+    <!-- Header Fijo -->
+    <header class="header-fixed">
+      <div class="d-flex justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <img src="/images/spellbook.png" alt="Spellbook" class="header-logo">
+          <h5 class="mb-0">Anima Counter</h5>
+        </div>
+        <div class="d-flex gap-2">
+          <a
+            href="https://github.com/mortegap/anima-counter"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline-secondary"
+            title="Ver código en GitHub"
+          >
+            <i class="bi bi-github"></i>
+          </a>
+          <button
+            class="btn btn-outline-secondary"
+            @click="toggleTheme"
+            title="Cambiar tema"
+          >
+            <i :class="isDarkMode ? 'bi bi-sun' : 'bi bi-moon'"></i>
+          </button>
+          <button
+            class="btn btn-danger"
+            @click="handleLogout"
+            title="Cerrar Sesión"
+          >
+            <i class="bi bi-box-arrow-right"></i>
+          </button>
+        </div>
       </div>
-      <div class="d-flex gap-2">
-        <button
-          class="btn btn-outline-secondary"
-          @click="toggleTheme"
-          title="Cambiar tema"
-        >
-          <i :class="isDarkMode ? 'bi bi-sun' : 'bi bi-moon'"></i>
-        </button>
-        <button
-          class="btn btn-danger"
-          @click="handleLogout"
-        >
-          <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-        </button>
-      </div>
-    </div>
+    </header>
+
+    <div class="container-fluid main-content">
 
     <!-- Loading State -->
     <div v-if="gameState.loading" class="text-center py-5">
@@ -50,11 +64,11 @@
 
       <!-- Columna Derecha - Hechizos -->
       <div class="col-lg-12">
-        <SpellForm />
         <SpellBook />
         <ReadyToCast />
         <MaintainedSpells />
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -68,7 +82,6 @@ import { useSpellsStore } from '@/stores/spells'
 import TurnCounter from '@/components/TurnCounter.vue'
 import CharacterStats from '@/components/CharacterStats.vue'
 import ZeonControl from '@/components/ZeonControl.vue'
-import SpellForm from '@/components/spells/SpellForm.vue'
 import SpellBook from '@/components/spells/SpellBook.vue'
 import ReadyToCast from '@/components/spells/ReadyToCast.vue'
 import MaintainedSpells from '@/components/spells/MaintainedSpells.vue'
@@ -79,7 +92,6 @@ export default {
     TurnCounter,
     CharacterStats,
     ZeonControl,
-    SpellForm,
     SpellBook,
     ReadyToCast,
     MaintainedSpells
@@ -132,3 +144,32 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.header-fixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 2rem;
+  z-index: 1000;
+}
+
+.header-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.main-content {
+  margin-top: 80px;
+  padding: 1rem;
+}
+
+body.dark-mode .header-fixed {
+  background: #1a1a1a;
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+</style>

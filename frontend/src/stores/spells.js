@@ -39,7 +39,10 @@ export const useSpellsStore = defineStore('spells', () => {
 
   async function addSpell(spellData) {
     const authStore = useAuthStore();
-    if (!authStore.currentProfileId) return;
+
+    if (!authStore.currentProfileId) {
+      throw new Error('No hay perfil seleccionado. Por favor, inicia sesión de nuevo.');
+    }
 
     try {
       const response = await axios.post(

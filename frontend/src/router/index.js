@@ -26,8 +26,13 @@ const router = createRouter({
 })
 
 // Navigation guard para rutas protegidas
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+
+  // Verificar autenticación si hay token en localStorage pero el store no está autenticado
+  if (!authStore.isAuthenticated && localStorage.getItem('token')) {
+    await authStore.checkAuth()
+  }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')

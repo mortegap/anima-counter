@@ -1,13 +1,13 @@
 <template>
   <div class="card mb-3">
     <div class="card-header">
-      <h5 class="mb-0">Control de Zeon</h5>
+      <h5 class="mb-0">Resumen de Zeon</h5>
     </div>
     <div class="card-body">
       <div class="row g-3">
-        <!-- Zeon Actual -->
+        <!-- Reserva de Zeon (rzeon) - Barra de progreso -->
         <div class="col-12">
-          <label class="form-label">Zeon Actual</label>
+          <label class="form-label">Reserva de Zeon</label>
           <div class="progress" style="height: 30px;">
             <div
               class="progress-bar"
@@ -15,117 +15,74 @@
               :style="{ width: zeonPercentage + '%' }"
               :class="zeonBarClass"
             >
-              {{ gameState.zeon }} / {{ gameState.rzeon }}
+              {{ gameState.rzeon }} / {{ gameState.zeon }}
             </div>
           </div>
         </div>
 
-        <!-- Controles de Zeon Actual -->
+        <!-- Zeon Máximo (zeon) - Editable -->
         <div class="col-12">
-          <div class="input-group">
-            <button
-              class="btn btn-outline-danger"
-              @click="modifyZeon(-10)"
-            >
-              -10
-            </button>
-            <button
-              class="btn btn-outline-danger"
-              @click="modifyZeon(-1)"
-            >
-              -1
-            </button>
+          <label for="zeon-control-max-zeon" class="form-label">Zeon Máximo</label>
+          <input
+            id="zeon-control-max-zeon"
+            type="number"
+            class="form-control"
+            v-model.number="maxZeon"
+            @blur="updateMaxZeon"
+            @keyup.enter="updateMaxZeon"
+            min="0"
+          >
+        </div>
+
+        <!-- Checkbox Acumulación -->
+        <div class="col-12">
+          <div class="form-check">
             <input
-              type="number"
-              class="form-control text-center"
-              v-model.number="zeonAmount"
-              min="0"
-              placeholder="Cantidad"
+              id="zeon-control-accumulate-checkbox"
+              type="checkbox"
+              class="form-check-input"
+              v-model="acuCheckbox"
+              @change="toggleAccumulation"
             >
-            <button
-              class="btn btn-outline-success"
-              @click="modifyZeon(1)"
-            >
-              +1
-            </button>
-            <button
-              class="btn btn-outline-success"
-              @click="modifyZeon(10)"
-            >
-              +10
-            </button>
+            <label for="zeon-control-accumulate-checkbox" class="form-check-label">
+              Acumular Zeon
+            </label>
           </div>
         </div>
 
         <!-- Zeon Acumulado -->
         <div class="col-md-6">
-          <label class="form-label">Zeon Acumulado (Normal)</label>
-          <div class="input-group">
-            <input
-              type="number"
-              class="form-control"
-              v-model.number="zeonAccumulatedAmount"
-              min="0"
-            >
-            <button
-              class="btn btn-outline-primary"
-              @click="addZeonAccumulated('normal')"
-            >
-              Añadir
-            </button>
-          </div>
-          <div class="mt-1">
-            <small class="text-muted">Actual: {{ gameState.zeona }}</small>
-          </div>
+          <label for="zeon-control-accumulated" class="form-label">Zeon Acumulado</label>
+          <input
+            id="zeon-control-accumulated"
+            type="number"
+            class="form-control"
+            v-model.number="gameState.zeona"
+            readonly
+          >
         </div>
 
         <!-- Zeon Perdido -->
         <div class="col-md-6">
-          <label class="form-label">Zeon Perdido</label>
+          <label for="zeon-control-lost" class="form-label">Zeon Perdido</label>
           <div class="input-group">
             <input
+              id="zeon-control-lost"
               type="number"
               class="form-control"
               v-model.number="zeonLostAmount"
               min="0"
             >
-            <button
-              class="btn btn-outline-warning"
-              @click="addZeonAccumulated('lost')"
-            >
-              Añadir
-            </button>
-          </div>
-          <div class="mt-1">
-            <small class="text-muted">Actual: {{ gameState.zeonp }}</small>
           </div>
         </div>
 
-        <!-- Resumen -->
-        <div class="col-12">
-          <div class="alert alert-info mb-0">
-            <div class="d-flex justify-content-between">
-              <span>Zeon para lanzar:</span>
-              <strong>{{ gameState.zeonToSpend }}</strong>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span>Zeon para mantener:</span>
-              <strong>{{ gameState.mantainZeonToSpend }}</strong>
-            </div>
-            <hr class="my-2">
-            <div class="d-flex justify-content-between">
-              <span>Zeon disponible:</span>
-              <strong :class="availableZeonClass">{{ gameState.availableZeon }}</strong>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useGameStateStore } from '@/stores/gameState'
 
 export default {
@@ -133,13 +90,24 @@ export default {
   setup() {
     const gameState = useGameStateStore()
 
-    const zeonAmount = ref(1)
-    const zeonAccumulatedAmount = ref(0)
+    const rzeonAmount = ref(1)
     const zeonLostAmount = ref(0)
+    const maxZeon = ref(gameState.zeon)
+    const acuCheckbox = ref(gameState.acu)
+
+    // Sincronizar maxZeon con gameState.zeon
+    watch(() => gameState.zeon, (newVal) => {
+      maxZeon.value = newVal
+    })
+
+    // Sincronizar checkbox con gameState.acu
+    watch(() => gameState.acu, (newVal) => {
+      acuCheckbox.value = newVal
+    })
 
     const zeonPercentage = computed(() => {
-      if (gameState.rzeon === 0) return 0
-      return Math.min(100, (gameState.zeon / gameState.rzeon) * 100)
+      if (gameState.zeon === 0) return 0
+      return Math.min(100, (gameState.rzeon / gameState.zeon) * 100)
     })
 
     const zeonBarClass = computed(() => {
@@ -154,7 +122,7 @@ export default {
       return gameState.availableZeon < 0 ? 'text-danger' : 'text-success'
     })
 
-    const modifyZeon = async (amount) => {
+    const modifyRzeon = async (amount) => {
       if (amount > 0) {
         await gameState.addZeon(amount)
       } else {
@@ -162,27 +130,36 @@ export default {
       }
     }
 
+    const updateMaxZeon = async () => {
+      if (maxZeon.value >= 0 && maxZeon.value !== gameState.zeon) {
+        await gameState.updateCharacteristics({ zeon: maxZeon.value })
+      }
+    }
+
+    const toggleAccumulation = async () => {
+      await gameState.updateCharacteristics({ acu: acuCheckbox.value })
+    }
+
     const addZeonAccumulated = async (type) => {
-      const amount = type === 'normal' ? zeonAccumulatedAmount.value : zeonLostAmount.value
-      if (amount > 0) {
+      const amount = zeonLostAmount.value
+      if (amount > 0 && type === 'lost') {
         await gameState.addZeonAccumulated(amount, type)
-        if (type === 'normal') {
-          zeonAccumulatedAmount.value = 0
-        } else {
-          zeonLostAmount.value = 0
-        }
+        zeonLostAmount.value = 0
       }
     }
 
     return {
       gameState,
-      zeonAmount,
-      zeonAccumulatedAmount,
+      rzeonAmount,
+      maxZeon,
+      acuCheckbox,
       zeonLostAmount,
       zeonPercentage,
       zeonBarClass,
       availableZeonClass,
-      modifyZeon,
+      modifyRzeon,
+      updateMaxZeon,
+      toggleAccumulation,
       addZeonAccumulated
     }
   }

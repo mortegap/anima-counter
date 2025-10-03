@@ -23,10 +23,27 @@
         </button>
       </div>
 
+      <div class="mt-3 d-flex gap-2 justify-content-center">
+        <button
+          class="btn btn-outline-success btn-sm"
+          @click="newDay"
+        >
+          <i class="bi bi-sunrise"></i>
+          +1 día
+        </button>
+        <button
+          class="btn btn-outline-warning btn-sm"
+          @click="resetTurn"
+          title="Reiniciar turno a 0"
+        >
+          <i class="bi bi-arrow-counterclockwise"></i>
+          Reiniciar
+        </button>
+      </div>
       <div v-if="gameState.rzeoni > 0" class="mt-3 text-muted small">
         <i class="bi bi-arrow-repeat"></i>
-        Regeneración: +{{ gameState.rzeoni }} zeon por turno
-      </div>
+        Regeneración: +{{ gameState.rzeoni }} zeon por día
+      </div>      
     </div>
   </div>
 </template>
@@ -47,10 +64,20 @@ export default {
       await gameState.previousTurn()
     }
 
+    const newDay = async () => {
+      await gameState.newDay()
+    }
+
+    const resetTurn = async () => {
+      await gameState.resetTurn()
+    }
+
     return {
       gameState,
       nextTurn,
-      previousTurn
+      previousTurn,
+      newDay,
+      resetTurn
     }
   }
 }
