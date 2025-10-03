@@ -1,30 +1,30 @@
 <template>
   <div class="spell-book-container">
     <div class="spell-book-header">
-      <h3>Lista de Hechizos</h3>
+      <h3>{{ $t('spells.spellBook') }}</h3>
       <button id="btn-add-new-spell" @click="openSpellForm" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Añadir hechizo nuevo
+        <i class="bi bi-plus-circle"></i> {{ $t('spells.addNewSpell') }}
       </button>
     </div>
 
     <div v-if="spellsStore.spellBook.length === 0" class="empty-state">
-      No hay hechizos guardados. Añade uno nuevo con el botón de arriba.
+      {{ $t('spells.noSpells') }}
     </div>
     <div v-else class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Vía</th>
-            <th>Base</th>
-            <th>Mant Base</th>
-            <th>Inter</th>
-            <th>Mant Inter</th>
-            <th>Avanz</th>
-            <th>Mant Avanz</th>
-            <th>Arcano</th>
-            <th>Mant Arcano</th>
-            <th>Acciones</th>
+            <th>{{ $t('spells.spellName') }}</th>
+            <th>{{ $t('spells.magicPath') }}</th>
+            <th>{{ $t('spells.base') }}</th>
+            <th>{{ $t('spells.maintBase') }}</th>
+            <th>{{ $t('spells.intermediate') }}</th>
+            <th>{{ $t('spells.maintInter') }}</th>
+            <th>{{ $t('spells.advanced') }}</th>
+            <th>{{ $t('spells.maintAdv') }}</th>
+            <th>{{ $t('spells.arcane') }}</th>
+            <th>{{ $t('spells.maintArc') }}</th>
+            <th>{{ $t('spells.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -35,7 +35,7 @@
               <button
                 @click="handleAddToReadyToCast(spell, 'base')"
                 class="btn btn-zeon btn-sm"
-                :title="`Preparar ${spell.spell_name} (Base)`"
+                :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.base')})`"
               >
                 {{ spell.spell_base }}
               </button>
@@ -45,7 +45,7 @@
               <button
                 @click="handleAddToReadyToCast(spell, 'inter')"
                 class="btn btn-zeon btn-sm"
-                :title="`Preparar ${spell.spell_name} (Intermedio)`"
+                :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.intermediate')})`"
               >
                 {{ spell.spell_inter }}
               </button>
@@ -55,7 +55,7 @@
               <button
                 @click="handleAddToReadyToCast(spell, 'advanced')"
                 class="btn btn-zeon btn-sm"
-                :title="`Preparar ${spell.spell_name} (Avanzado)`"
+                :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.advanced')})`"
               >
                 {{ spell.spell_advanced }}
               </button>
@@ -65,7 +65,7 @@
               <button
                 @click="handleAddToReadyToCast(spell, 'arcane')"
                 class="btn btn-zeon btn-sm"
-                :title="`Preparar ${spell.spell_name} (Arcano)`"
+                :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.arcane')})`"
               >
                 {{ spell.spell_arcane }}
               </button>
@@ -76,7 +76,7 @@
                 @click="handleRemoveSpell(spell.spell_name)"
                 class="btn btn-danger btn-sm"
               >
-                Eliminar
+                {{ $t('common.delete') }}
               </button>
             </td>
           </tr>

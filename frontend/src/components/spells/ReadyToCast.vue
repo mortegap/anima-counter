@@ -1,6 +1,6 @@
 <template>
   <div class="ready-to-cast-container">
-    <h3>Hechizos a Lanzar</h3>
+    <h3>{{ $t('spells.readyToCast') }}</h3>
 
     <div class="load-spell-form">
       <div class="form-row">
@@ -8,7 +8,7 @@
           id="ready-to-cast-spell-name"
           type="text"
           v-model="loadSpellName"
-          placeholder="Nombre del hechizo"
+          :placeholder="$t('spells.spellName')"
           class="form-control"
         />
         <input
@@ -22,27 +22,27 @@
           id="ready-to-cast-spell-mantain"
           type="number"
           v-model.number="loadSpellMantain"
-          placeholder="Mantener"
+          :placeholder="$t('spells.maintenance')"
           class="form-control"
         />
         <button @click="handleLoadSpell" class="btn btn-success">
-          Cargar
+          {{ $t('spells.load') }}
         </button>
       </div>
     </div>
 
     <div v-if="gameState.readyToCast.length === 0" class="empty-state">
-      No hay hechizos cargados para lanzar.
+      {{ $t('spells.noReadySpells') }}
     </div>
     <div v-else class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th>Nombre</th>
+            <th>{{ $t('spells.spellName') }}</th>
             <th>Zeon</th>
-            <th>Mantener</th>
-            <th>Mantener hechizo</th>
-            <th>Acciones</th>
+            <th>{{ $t('spells.maintenance') }}</th>
+            <th>{{ $t('spells.maintainSpell') }}</th>
+            <th>{{ $t('spells.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -62,7 +62,7 @@
                 @click="handleUnloadSpell(spell.id)"
                 class="btn btn-warning btn-sm"
               >
-                Descargar
+                {{ $t('spells.unload') }}
               </button>
             </td>
           </tr>
@@ -70,11 +70,11 @@
       </table>
 
       <div class="total-zeon">
-        <strong>Zeon Total a Gastar: {{ gameState.zeonToSpend }}</strong>
+        <strong>{{ $t('spells.totalZeonToSpend') }}: {{ gameState.zeonToSpend }}</strong>
       </div>
 
       <button @click="handleCastSpell" class="btn btn-primary btn-cast">
-        Lanzar Hechizos
+        {{ $t('spells.castSpells') }}
       </button>
     </div>
   </div>

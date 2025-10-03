@@ -13,21 +13,28 @@
             target="_blank"
             rel="noopener noreferrer"
             class="btn btn-outline-secondary"
-            title="Ver código en GitHub"
+            :title="$t('header.viewOnGitHub')"
           >
             <i class="bi bi-github"></i>
           </a>
           <button
             class="btn btn-outline-secondary"
+            @click="toggleLocale"
+            :title="currentLocale === 'es' ? 'Change to English' : 'Cambiar a Español'"
+          >
+            {{ currentLocale === 'es' ? 'EN' : 'ES' }}
+          </button>
+          <button
+            class="btn btn-outline-secondary"
             @click="toggleTheme"
-            title="Cambiar tema"
+            :title="$t('header.changeTheme')"
           >
             <i :class="isDarkMode ? 'bi bi-sun' : 'bi bi-moon'"></i>
           </button>
           <button
             class="btn btn-danger"
             @click="handleLogout"
-            title="Cerrar Sesión"
+            :title="$t('header.logout')"
           >
             <i class="bi bi-box-arrow-right"></i>
           </button>
@@ -40,7 +47,7 @@
     <!-- Loading State -->
     <div v-if="gameState.loading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando...</span>
+        <span class="visually-hidden">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -75,6 +82,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useGameStateStore } from '@/stores/gameState'
 import { useSpellsStore } from '@/stores/spells'
@@ -95,11 +103,13 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const { locale } = useI18n()
     const authStore = useAuthStore()
     const gameState = useGameStateStore()
     const spellsStore = useSpellsStore()
 
     const isDarkMode = ref(false)
+    const currentLocale = ref(locale.value)
 
     onMounted(async () => {
       // Cargar tema guardado
@@ -124,6 +134,13 @@ export default {
       localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light')
     }
 
+    const toggleLocale = () => {
+      const newLocale = currentLocale.value === 'es' ? 'en' : 'es'
+      locale.value = newLocale
+      currentLocale.value = newLocale
+      localStorage.setItem('locale', newLocale)
+    }
+
     const handleLogout = async () => {
       gameState.resetState()
       spellsStore.resetSpellData()
@@ -135,7 +152,9 @@ export default {
       authStore,
       gameState,
       isDarkMode,
+      currentLocale,
       toggleTheme,
+      toggleLocale,
       handleLogout
     }
   }

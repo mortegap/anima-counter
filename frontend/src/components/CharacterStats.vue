@@ -1,18 +1,18 @@
 <template>
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">Características</h5>
+      <h5 class="mb-0">{{ $t('characterStats.title') }}</h5>
       <button
         class="btn btn-sm btn-outline-primary"
         @click="toggleEdit"
       >
-        {{ isEditing ? 'Guardar' : 'Editar' }}
+        {{ isEditing ? $t('common.save') : $t('common.edit') }}
       </button>
     </div>
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-12">
-          <label for="char-stats-rzeon" class="form-label">Zeon Máximo</label>
+          <label for="char-stats-rzeon" class="form-label">{{ $t('characterStats.maxZeon') }}</label>
           <input
             id="char-stats-rzeon"
             type="number"
@@ -24,7 +24,7 @@
         </div>
 
         <div class="col-md-12">
-          <label for="char-stats-act" class="form-label">ACT</label>
+          <label for="char-stats-act" class="form-label">{{ $t('characterStats.act') }}</label>
           <input
             id="char-stats-act"
             type="number"
@@ -36,7 +36,7 @@
         </div>
 
         <div class="col-md-12">
-          <label for="char-stats-rzeoni" class="form-label">Regeneración Zeónica</label>
+          <label for="char-stats-rzeoni" class="form-label">{{ $t('characterStats.zeonicRegeneration') }}</label>
           <input
             id="char-stats-rzeoni"
             type="number"
@@ -48,7 +48,7 @@
         </div>
 
         <div class="col-md-12">
-          <label for="char-stats-zeon-actual" class="form-label">Reserva de Zeon</label>
+          <label for="char-stats-zeon-actual" class="form-label">{{ $t('characterStats.zeonPool') }}</label>
           <input
             id="char-stats-zeon-actual"
             type="number"

@@ -1,12 +1,12 @@
 <template>
   <div class="card mb-3">
     <div class="card-header">
-      <h5 class="mb-0">Combate</h5>
+      <h5 class="mb-0">{{ $t('zeonControl.title') }}</h5>
     </div>
     <div class="card-body">
       <!-- Sección de Turno (integrada desde TurnCounter) -->
       <div>
-        <h6 class="text-muted mb-3 text-center">Turno</h6>
+        <h6 class="text-muted mb-3 text-center">{{ $t('zeonControl.turn') }}</h6>
         <div class="d-flex justify-content-center align-items-center gap-3">
           <button
             class="btn btn-outline-secondary"
@@ -28,32 +28,32 @@
           </button>
         </div>
 
-      </div>    
+      </div>
         <div class="mt-3 d-flex gap-2 justify-content-center">
           <button
             class="btn btn-outline-success btn-sm"
             @click="newDay"
           >
             <i class="bi bi-sunrise"></i>
-            +1 día
+            {{ $t('turnCounter.newDay') }}
           </button>
           <button
             class="btn btn-outline-warning btn-sm"
             @click="resetTurn"
-            title="Reiniciar turno a 0"
+            :title="$t('turnCounter.resetTooltip')"
           >
             <i class="bi bi-arrow-counterclockwise"></i>
-            Reiniciar
+            {{ $t('turnCounter.reset') }}
           </button>
         </div>
         <div v-if="gameState.rzeoni > 0" class="mt-3 text-muted small text-center">
           <i class="bi bi-arrow-repeat"></i>
-          Regeneración: +{{ gameState.rzeoni }} zeon por día
+          {{ $t('zeonControl.regeneration') }}: +{{ gameState.rzeoni }} {{ $t('zeonControl.zeonPerDay') }}
         </div>    
       <div class="row g-3">
         <!-- Reserva de Zeon (rzeon) - Barra de progreso -->
         <div class="col-12">
-          <label class="form-label">Reserva de Zeon</label>
+          <label class="form-label">{{ $t('zeonControl.zeonPool') }}</label>
           <div class="progress" style="height: 30px;">
             <div
               class="progress-bar"
@@ -77,14 +77,14 @@
               @change="toggleAccumulation"
             >
             <label for="zeon-control-accumulate-checkbox" class="form-check-label">
-              Acumular Zeon
+              {{ $t('zeonControl.accumulateZeon') }}
             </label>
           </div>
         </div>
 
         <!-- Zeon Acumulado -->
         <div class="col-md-6">
-          <label for="zeon-control-accumulated" class="form-label">Zeon Acumulado</label>
+          <label for="zeon-control-accumulated" class="form-label">{{ $t('zeonControl.accumulatedZeon') }}</label>
           <input
             id="zeon-control-accumulated"
             type="number"
@@ -96,7 +96,7 @@
 
         <!-- Zeon Perdido -->
         <div class="col-md-6">
-          <label for="zeon-control-lost" class="form-label">Zeon Perdido</label>
+          <label for="zeon-control-lost" class="form-label">{{ $t('zeonControl.lostZeon') }}</label>
           <div class="input-group">
             <input
               id="zeon-control-lost"

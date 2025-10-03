@@ -4,36 +4,36 @@
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-container">
         <div class="modal-header">
-          <h3>Añadir Hechizo</h3>
+          <h3>{{ $t('spells.addSpell') }}</h3>
           <button @click="closeModal" class="btn-close">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddSpell" class="spell-form">
           <div class="form-row">
             <div class="form-group">
-              <label for="spellName">Nombre:</label>
+              <label for="spellName">{{ $t('spells.spellName') }}:</label>
               <input
                 type="text"
                 id="spellName"
                 v-model="formData.spell_name"
-                placeholder="Nombre del hechizo"
+                :placeholder="$t('spells.spellName')"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="spellVia">Vía:</label>
+              <label for="spellVia">{{ $t('spells.magicPath') }}:</label>
               <input
                 type="text"
                 id="spellVia"
                 v-model="formData.spell_via"
-                placeholder="Vía mágica"
+                :placeholder="$t('spells.magicPath')"
               />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="spellBase">Base:</label>
+              <label for="spellBase">{{ $t('spells.base') }}:</label>
               <input
                 type="number"
                 id="spellBase"
@@ -43,7 +43,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="spellInter">Intermedio:</label>
+              <label for="spellInter">{{ $t('spells.intermediate') }}:</label>
               <input
                 type="number"
                 id="spellInter"
@@ -53,7 +53,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="spellAdvanced">Avanzado:</label>
+              <label for="spellAdvanced">{{ $t('spells.advanced') }}:</label>
               <input
                 type="number"
                 id="spellAdvanced"
@@ -63,7 +63,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="spellArcane">Arcano:</label>
+              <label for="spellArcane">{{ $t('spells.arcane') }}:</label>
               <input
                 type="number"
                 id="spellArcane"
@@ -76,7 +76,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="spellBaseMantain">Mantener Base:</label>
+              <label for="spellBaseMantain">{{ $t('spells.maintBase') }}:</label>
               <input
                 type="number"
                 id="spellBaseMantain"
@@ -85,7 +85,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="spellInterMantain">Mantener Inter:</label>
+              <label for="spellInterMantain">{{ $t('spells.maintInter') }}:</label>
               <input
                 type="number"
                 id="spellInterMantain"
@@ -94,7 +94,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="spellAdvancedMantain">Mantener Avanzado:</label>
+              <label for="spellAdvancedMantain">{{ $t('spells.maintAdv') }}:</label>
               <input
                 type="number"
                 id="spellAdvancedMantain"
@@ -103,7 +103,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="spellArcaneMantain">Mantener Arcano:</label>
+              <label for="spellArcaneMantain">{{ $t('spells.maintArc') }}:</label>
               <input
                 type="number"
                 id="spellArcaneMantain"
@@ -114,8 +114,8 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" @click="closeModal" class="btn btn-secondary">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Añadir Hechizo</button>
+            <button type="button" @click="closeModal" class="btn btn-secondary">{{ $t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-primary">{{ $t('spells.addSpell') }}</button>
           </div>
         </form>
       </div>
