@@ -1,5 +1,12 @@
 <template>
   <div class="auth-container">
+    <button
+      class="language-toggle btn btn-outline-secondary"
+      @click="toggleLocale"
+      :title="currentLocale === 'es' ? 'Change to English' : 'Cambiar a Español'"
+    >
+      {{ currentLocale === 'es' ? 'EN' : 'ES' }}
+    </button>
     <div class="auth-card">
       <h2 class="text-center mb-4">{{ $t('auth.login') }}</h2>
 
@@ -47,18 +54,28 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 
 export default {
   name: 'Login',
   setup() {
     const router = useRouter()
+    const { locale } = useI18n()
     const authStore = useAuthStore()
 
     const username = ref('')
     const password = ref('')
     const errorMessage = ref('')
     const loading = ref(false)
+    const currentLocale = ref(locale.value)
+
+    const toggleLocale = () => {
+      const newLocale = currentLocale.value === 'es' ? 'en' : 'es'
+      locale.value = newLocale
+      currentLocale.value = newLocale
+      localStorage.setItem('locale', newLocale)
+    }
 
     const handleLogin = async () => {
       errorMessage.value = ''
@@ -80,6 +97,8 @@ export default {
       password,
       errorMessage,
       loading,
+      currentLocale,
+      toggleLocale,
       handleLogin
     }
   }
@@ -95,6 +114,20 @@ export default {
   padding: 1rem;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.language-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: white;
+  border-color: #dee2e6;
+}
+
+.language-toggle:hover {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
 }
 
 .auth-card {
