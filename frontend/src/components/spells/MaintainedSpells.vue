@@ -1,17 +1,17 @@
 <template>
   <div class="maintained-spells-container">
-    <h3>Hechizos Mantenidos</h3>
+    <h3>{{ $t('spells.maintainedSpells') }}</h3>
 
     <div v-if="gameState.spellMantainList.length === 0" class="empty-state">
-      No hay hechizos mantenidos actualmente.
+      {{ $t('spells.noMaintainedSpells') }}
     </div>
     <div v-else class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Coste de Mantenimiento</th>
-            <th>Acciones</th>
+            <th>{{ $t('spells.name') }}</th>
+            <th>{{ $t('spells.maintenanceCost') }}</th>
+            <th>{{ $t('spells.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
                 @click="handleUnmantainSpell(spell.id)"
                 class="btn btn-danger btn-sm"
               >
-                Eliminar
+                {{ $t('common.delete') }}
               </button>
             </td>
           </tr>
@@ -31,7 +31,7 @@
       </table>
 
       <div class="total-mantain">
-        <strong>Zeon Total de Mantenimiento: {{ gameState.mantainZeonToSpend }}</strong>
+        <strong>{{ $t('spells.totalMaintenanceZeon') }}: {{ gameState.mantainZeonToSpend }}</strong>
       </div>
     </div>
   </div>
@@ -39,14 +39,16 @@
 
 <script>
 import { useGameStateStore } from '@/stores/gameState';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'MaintainedSpells',
   setup() {
     const gameState = useGameStateStore();
+    const { t } = useI18n();
 
     const handleUnmantainSpell = async (spellId) => {
-      if (confirm('¿Dejar de mantener este hechizo?')) {
+      if (confirm(t('spells.stopMaintainingConfirm'))) {
         try {
           await gameState.removeFromMantain(spellId);
         } catch (error) {

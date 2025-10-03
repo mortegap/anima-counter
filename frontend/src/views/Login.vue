@@ -1,11 +1,11 @@
 <template>
   <div class="auth-container">
     <div class="auth-card">
-      <h2 class="text-center mb-4">Iniciar Sesión</h2>
+      <h2 class="text-center mb-4">{{ $t('auth.login') }}</h2>
 
       <form @submit.prevent="handleLogin">
         <div class="mb-3">
-          <label for="username" class="form-label">Usuario</label>
+          <label for="username" class="form-label">{{ $t('auth.username') }}</label>
           <input
             type="text"
             class="form-control"
@@ -17,7 +17,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="password" class="form-label">Contraseña</label>
+          <label for="password" class="form-label">{{ $t('auth.password') }}</label>
           <input
             type="password"
             class="form-control"
@@ -33,12 +33,12 @@
         </div>
 
         <button type="submit" class="btn btn-primary w-100" :disabled="loading">
-          {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+          {{ loading ? $t('auth.loggingIn') : $t('auth.login') }}
         </button>
       </form>
 
       <div class="text-center mt-3">
-        <p>¿No tienes cuenta? <router-link to="/register">Regístrate</router-link></p>
+        <p>{{ $t('auth.noAccount') }} <router-link to="/register">{{ $t('auth.registerLink') }}</router-link></p>
       </div>
     </div>
   </div>
