@@ -1,0 +1,37 @@
+# ============================================
+# Dockerfile para desarrollo con hot-reload
+# ============================================
+FROM node:18-alpine AS development
+
+# Instalar herramientas de desarrollo
+RUN apk add --no-cache \
+    wget \
+    curl \
+    git && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /usr/src/app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar TODAS las dependencias (incluyendo devDependencies)
+RUN npm install && \
+    npm cache clean --force
+
+# Copiar código fuente (se sobrescribirá con volumen en docker-compose.dev.yml)
+COPY . .
+
+# Exponer puerto de la app y puerto de debug
+EXPOSE 3000 9229
+
+# Variables de entorno para desarrollo
+ENV NODE_ENV=development \
+    PORT=3000
+
+# Health check deshabilitado en desarrollo para evitar ruido en logs
+# HEALTHCHECK NONE
+
+# Comando por defecto (puede ser sobrescrito en docker-compose.dev.yml)
+# Usa nodemon para hot-reload
+CMD ["npm", "run", "dev"]

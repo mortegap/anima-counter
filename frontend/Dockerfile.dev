@@ -1,0 +1,36 @@
+# ============================================
+# Dockerfile para desarrollo con Vite HMR
+# ============================================
+FROM node:18-alpine AS development
+
+# Instalar herramientas de desarrollo
+RUN apk add --no-cache \
+    git && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar TODAS las dependencias
+RUN npm install && \
+    npm cache clean --force
+
+# Copiar archivos de configuración
+COPY vite.config.js ./
+COPY index.html ./
+
+# Copiar código fuente (se sobrescribirá con volumen en docker-compose.dev.yml)
+COPY src ./src
+COPY public ./public
+
+# Exponer puerto de Vite
+EXPOSE 5173
+
+# Variables de entorno para desarrollo
+ENV NODE_ENV=development
+
+# Comando por defecto (Vite dev server con HMR)
+# --host 0.0.0.0 permite acceso desde fuera del contenedor
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
