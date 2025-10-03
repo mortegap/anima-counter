@@ -11,7 +11,7 @@
     </div>
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <label for="char-stats-rzeon" class="form-label">Zeon Máximo</label>
           <input
             id="char-stats-rzeon"
@@ -23,7 +23,7 @@
           >
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-12">
           <label for="char-stats-act" class="form-label">ACT</label>
           <input
             id="char-stats-act"
@@ -35,7 +35,7 @@
           >
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-12">
           <label for="char-stats-rzeoni" class="form-label">Regeneración Zeónica</label>
           <input
             id="char-stats-rzeoni"
@@ -47,7 +47,7 @@
           >
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-12">
           <label for="char-stats-zeon-actual" class="form-label">Reserva de Zeon</label>
           <input
             id="char-stats-zeon-actual"

@@ -53,7 +53,6 @@
     <div v-if="!gameState.loading" class="row">
       <!-- Columna Izquierda -->
       <div class="col-lg-4">
-        <TurnCounter />
         <CharacterStats />
       </div>
 
@@ -79,7 +78,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useGameStateStore } from '@/stores/gameState'
 import { useSpellsStore } from '@/stores/spells'
-import TurnCounter from '@/components/TurnCounter.vue'
 import CharacterStats from '@/components/CharacterStats.vue'
 import ZeonControl from '@/components/ZeonControl.vue'
 import SpellBook from '@/components/spells/SpellBook.vue'
@@ -89,7 +87,6 @@ import MaintainedSpells from '@/components/spells/MaintainedSpells.vue'
 export default {
   name: 'Home',
   components: {
-    TurnCounter,
     CharacterStats,
     ZeonControl,
     SpellBook,

@@ -1,9 +1,55 @@
 <template>
   <div class="card mb-3">
     <div class="card-header">
-      <h5 class="mb-0">Resumen de Zeon</h5>
+      <h5 class="mb-0">Combate</h5>
     </div>
     <div class="card-body">
+      <!-- Sección de Turno (integrada desde TurnCounter) -->
+      <div>
+        <h6 class="text-muted mb-3 text-center">Turno</h6>
+        <div class="d-flex justify-content-center align-items-center gap-3">
+          <button
+            class="btn btn-outline-secondary"
+            @click="previousTurn"
+            :disabled="gameState.turn_number === 0"
+          >
+            <i class="bi bi-arrow-left"></i>
+          </button>
+
+          <div class="turn-display">
+            <h1 class="mb-0">{{ gameState.turn_number }}</h1>
+          </div>
+
+          <button
+            class="btn btn-outline-primary"
+            @click="nextTurn"
+          >
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>    
+        <div class="mt-3 d-flex gap-2 justify-content-center">
+          <button
+            class="btn btn-outline-success btn-sm"
+            @click="newDay"
+          >
+            <i class="bi bi-sunrise"></i>
+            +1 día
+          </button>
+          <button
+            class="btn btn-outline-warning btn-sm"
+            @click="resetTurn"
+            title="Reiniciar turno a 0"
+          >
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Reiniciar
+          </button>
+        </div>
+        <div v-if="gameState.rzeoni > 0" class="mt-3 text-muted small text-center">
+          <i class="bi bi-arrow-repeat"></i>
+          Regeneración: +{{ gameState.rzeoni }} zeon por día
+        </div>    
       <div class="row g-3">
         <!-- Reserva de Zeon (rzeon) - Barra de progreso -->
         <div class="col-12">
@@ -18,20 +64,6 @@
               {{ gameState.rzeon }} / {{ gameState.zeon }}
             </div>
           </div>
-        </div>
-
-        <!-- Zeon Máximo (zeon) - Editable -->
-        <div class="col-12">
-          <label for="zeon-control-max-zeon" class="form-label">Zeon Máximo</label>
-          <input
-            id="zeon-control-max-zeon"
-            type="number"
-            class="form-control"
-            v-model.number="maxZeon"
-            @blur="updateMaxZeon"
-            @keyup.enter="updateMaxZeon"
-            min="0"
-          >
         </div>
 
         <!-- Checkbox Acumulación -->
@@ -148,6 +180,23 @@ export default {
       }
     }
 
+    // Funciones de turno (integradas desde TurnCounter)
+    const nextTurn = async () => {
+      await gameState.nextTurn()
+    }
+
+    const previousTurn = async () => {
+      await gameState.previousTurn()
+    }
+
+    const newDay = async () => {
+      await gameState.newDay()
+    }
+
+    const resetTurn = async () => {
+      await gameState.resetTurn()
+    }
+
     return {
       gameState,
       rzeonAmount,
@@ -160,8 +209,29 @@ export default {
       modifyRzeon,
       updateMaxZeon,
       toggleAccumulation,
-      addZeonAccumulated
+      addZeonAccumulated,
+      nextTurn,
+      previousTurn,
+      newDay,
+      resetTurn
     }
   }
 }
 </script>
+
+<style scoped>
+.turn-display {
+  min-width: 100px;
+  text-align: center;
+}
+
+.turn-display h1 {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--bs-primary);
+}
+
+.btn i {
+  font-size: 1.2rem;
+}
+</style>
