@@ -7,6 +7,7 @@ const { authenticateToken } = require('../middleware/auth.middleware');
 router.use(authenticateToken);
 
 router.get('/', profilesController.getProfiles);
+router.get('/:profileId', profilesController.getProfileById);
 router.post('/', profilesController.createProfile);
 router.put('/:profileId', profilesController.updateProfile);
 router.delete('/:profileId', profilesController.deleteProfile);

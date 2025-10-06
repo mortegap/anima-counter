@@ -1,30 +1,23 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useProfilesStore } from './profiles'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     token: null,
-    profile: null,
     isAuthenticated: false
   }),
 
   getters: {
-    currentProfileId: (state) => state.profile?.id || null
+    // Mantener compatibilidad con código existente
+    currentProfileId: () => {
+      const profilesStore = useProfilesStore()
+      return profilesStore.activeProfileId
+    }
   },
 
   actions: {
-    async fetchProfile() {
-      try {
-        const response = await axios.get('/api/profiles')
-        // Tomar el primer profile del usuario (por ahora solo hay uno por usuario)
-        if (response.data && response.data.length > 0) {
-          this.profile = response.data[0]
-        }
-      } catch (error) {
-        console.error('Error al obtener perfil:', error)
-      }
-    },
 
     async login(username, password) {
       try {
@@ -44,8 +37,9 @@ export const useAuthStore = defineStore('auth', {
 
         this.isAuthenticated = true
 
-        // Obtener el profile
-        await this.fetchProfile()
+        // Cargar perfiles usando el profiles store
+        const profilesStore = useProfilesStore()
+        await profilesStore.fetchProfiles()
 
         return { success: true }
       } catch (error) {
@@ -75,8 +69,9 @@ export const useAuthStore = defineStore('auth', {
 
         this.isAuthenticated = true
 
-        // Obtener el profile
-        await this.fetchProfile()
+        // Cargar perfiles usando el profiles store
+        const profilesStore = useProfilesStore()
+        await profilesStore.fetchProfiles()
 
         return { success: true }
       } catch (error) {
@@ -89,11 +84,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     logout() {
-      // Limpiar estado
+      // Limpiar estado de auth
       this.user = null
       this.token = null
-      this.profile = null
       this.isAuthenticated = false
+
+      // Limpiar estado de perfiles
+      const profilesStore = useProfilesStore()
+      profilesStore.resetState()
 
       // Limpiar localStorage
       localStorage.removeItem('token')
@@ -120,8 +118,9 @@ export const useAuthStore = defineStore('auth', {
         this.user = response.data.user
         this.isAuthenticated = true
 
-        // Obtener el profile
-        await this.fetchProfile()
+        // Cargar perfiles usando el profiles store
+        const profilesStore = useProfilesStore()
+        await profilesStore.fetchProfiles()
 
         return true
       } catch (error) {

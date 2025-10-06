@@ -8,6 +8,7 @@
     "add": "Add",
     "close": "Close",
     "confirm": "Confirm",
+    "create": "Create",
     "loading": "Loading...",
     "error": "Error"
   },
@@ -106,5 +107,14 @@
     "viewOnGitHub": "View code on GitHub",
     "changeTheme": "Change theme",
     "logout": "Logout"
+  },
+  "profiles": {
+    "selectProfile": "Select profile",
+    "createNew": "Create new profile",
+    "manage": "Manage profiles",
+    "profileName": "Profile name",
+    "profileNamePlaceholder": "e.g. My Character",
+    "nameLength": "Name must be between 3 and 50 characters",
+    "active": "Active"
   }
 }
