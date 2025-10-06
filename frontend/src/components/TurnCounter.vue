@@ -68,9 +68,11 @@ export default {
       await gameState.newDay()
     }
 
-    const resetTurn = async () => {
-      await gameState.resetTurn()
-    }
+    // const resetTurn = async () => {
+    //   if (confirm('¿Reiniciar el turno a 0?')) {
+    //     await gameState.resetTurn()
+    //   }
+    // }
 
     return {
       gameState,

@@ -10,7 +10,16 @@
     <div v-if="spellsStore.spellBook.length === 0" class="empty-state">
       {{ $t('spells.noSpells') }}
     </div>
-    <div v-else class="table-responsive">
+    <div v-else>
+      <div class="filter-section">
+        <label for="via-filter">{{ $t('spells.magicPath') }}:</label>
+        <select id="via-filter" v-model="selectedVia" class="form-control filter-select">
+          <option value="">Todas</option>
+          <option v-for="via in uniqueVias" :key="via" :value="via">{{ via }}</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
@@ -28,14 +37,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="spell in spellsStore.spellBook" :key="spell.id">
+          <tr v-for="spell in filteredSpells" :key="spell.id">
             <td>{{ spell.spell_name }}</td>
             <td>{{ spell.spell_via || '-' }}</td>
             <td>
               <button
+                :id="`spell-${spell.id}-base`"
                 @click="handleAddToReadyToCast(spell, 'base')"
                 class="btn btn-zeon btn-sm"
                 :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.base')})`"
+                :disabled="(spell.spell_base || 0) > (gameState.zeona || 0)"
               >
                 {{ spell.spell_base }}
               </button>
@@ -43,9 +54,11 @@
             <td>{{ spell.spell_base_mantain || '-' }}</td>
             <td>
               <button
+                :id="`spell-${spell.id}-inter`"
                 @click="handleAddToReadyToCast(spell, 'inter')"
                 class="btn btn-zeon btn-sm"
                 :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.intermediate')})`"
+                :disabled="(spell.spell_inter || 0) > (gameState.zeona || 0)"
               >
                 {{ spell.spell_inter }}
               </button>
@@ -53,9 +66,11 @@
             <td>{{ spell.spell_inter_mantain || '-' }}</td>
             <td>
               <button
+                :id="`spell-${spell.id}-advanced`"
                 @click="handleAddToReadyToCast(spell, 'advanced')"
                 class="btn btn-zeon btn-sm"
                 :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.advanced')})`"
+                :disabled="(spell.spell_advanced || 0) > (gameState.zeona || 0)"
               >
                 {{ spell.spell_advanced }}
               </button>
@@ -63,9 +78,11 @@
             <td>{{ spell.spell_advanced_mantain || '-' }}</td>
             <td>
               <button
+                :id="`spell-${spell.id}-arcane`"
                 @click="handleAddToReadyToCast(spell, 'arcane')"
                 class="btn btn-zeon btn-sm"
                 :title="`${$t('spells.prepare')} ${spell.spell_name} (${$t('spells.arcane')})`"
+                :disabled="(spell.spell_arcane || 0) > (gameState.zeona || 0)"
               >
                 {{ spell.spell_arcane }}
               </button>
@@ -82,6 +99,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Importar SpellForm como modal -->
@@ -90,7 +108,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useSpellsStore } from '@/stores/spells';
 import { useGameStateStore } from '@/stores/gameState';
 import SpellForm from './SpellForm.vue';
@@ -104,6 +122,21 @@ export default {
     const spellsStore = useSpellsStore();
     const gameState = useGameStateStore();
     const spellFormRef = ref(null);
+    const selectedVia = ref('');
+
+    const uniqueVias = computed(() => {
+      const vias = spellsStore.spellBook
+        .map(spell => spell.spell_via)
+        .filter(via => via && via !== '-');
+      return [...new Set(vias)].sort();
+    });
+
+    const filteredSpells = computed(() => {
+      if (!selectedVia.value) {
+        return spellsStore.spellBook;
+      }
+      return spellsStore.spellBook.filter(spell => spell.spell_via === selectedVia.value);
+    });
 
     const openSpellForm = () => {
       if (spellFormRef.value) {
@@ -177,7 +210,11 @@ export default {
 
     return {
       spellsStore,
+      gameState,
       spellFormRef,
+      selectedVia,
+      uniqueVias,
+      filteredSpells,
       openSpellForm,
       handleAddToReadyToCast,
       handleRemoveSpell
@@ -205,6 +242,33 @@ export default {
 .spell-book-header h3 {
   margin: 0;
   color: #333;
+}
+
+.filter-section {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-section label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0;
+}
+
+.filter-select {
+  max-width: 200px;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
 
 .empty-state {
@@ -275,9 +339,15 @@ export default {
   min-width: 45px;
 }
 
-.btn-zeon:hover {
+.btn-zeon:hover:not(:disabled) {
   background-color: #0b5ed7;
   transform: scale(1.05);
+}
+
+.btn-zeon:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-success {
@@ -294,6 +364,16 @@ body.dark-mode .spell-book-container {
 }
 
 body.dark-mode .spell-book-header h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .filter-section label {
+  color: #b0b0b0;
+}
+
+body.dark-mode .filter-select {
+  background-color: #1a1a1a;
+  border-color: #404040;
   color: #e0e0e0;
 }
 
