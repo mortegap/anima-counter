@@ -194,7 +194,9 @@ export default {
     }
 
     const resetTurn = async () => {
-      await gameState.resetTurn()
+      if (confirm('¿Reiniciar el turno a 0?')) {
+        await gameState.resetTurn()
+      }
     }
 
     return {

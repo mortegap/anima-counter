@@ -73,7 +73,11 @@
         <strong>{{ $t('spells.totalZeonToSpend') }}: {{ gameState.zeonToSpend }}</strong>
       </div>
 
-      <button @click="handleCastSpell" class="btn btn-primary btn-cast">
+      <button
+        @click="handleCastSpell"
+        class="btn btn-primary btn-cast"
+        :disabled="gameState.zeonToSpend > gameState.zeona"
+      >
         {{ $t('spells.castSpells') }}
       </button>
     </div>

@@ -320,11 +320,22 @@ export const useGameStateStore = defineStore('gameState', {
       const authStore = useAuthStore()
 
       try {
-        // Restar zeon total a gastar de la reserva de zeon antes de limpiar
+        // Restar zeon total acumulado de la reserva de zeon
         if (this.zeonToSpend > 0) {
-          this.rzeon = Math.max(this.rzeon - this.zeonToSpend, 0)
-          await this.saveGameState()
+          this.rzeon = Math.max(this.rzeon - this.zeona, 0)
         }
+
+        // Calcular excedente de zeon si zeona > zeon_to_spend
+        if (this.zeona > this.zeonToSpend) {
+          const excedente = this.zeona - this.zeonToSpend - 10
+          if (excedente > 0) {
+            this.rzeon = Math.min(this.rzeon + excedente, this.zeon)
+          }
+        }
+
+        // Actualizar zeona a 0
+        this.zeona = 0
+        await this.saveGameState()
 
         // Añadir a spell_mantain_list los hechizos marcados con spell_mantain_turn
         const spellsToMantain = this.readyToCast.filter(spell => spell.spell_mantain_turn === true)
