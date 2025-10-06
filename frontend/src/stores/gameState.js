@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { useAuthStore } from './auth'
+import { useProfilesStore } from './profiles'
 
 export const useGameStateStore = defineStore('gameState', {
   state: () => ({
@@ -43,10 +43,10 @@ export const useGameStateStore = defineStore('gameState', {
 
   actions: {
     async loadGameData() {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
-      if (!authStore.profile?.id) {
-        console.error('No hay perfil cargado')
+      if (!profilesStore.activeProfileId) {
+        console.error('No hay perfil activo')
         return
       }
 
@@ -54,22 +54,24 @@ export const useGameStateStore = defineStore('gameState', {
         this.loading = true
         this.error = null
 
+        const profileId = profilesStore.activeProfileId
+
         // Cargar estado del juego
-        const gameStateResponse = await axios.get(`/api/gamestate/${authStore.profile.id}`)
+        const gameStateResponse = await axios.get(`/api/gamestate/${profileId}`)
         this.updateLocalGameState(gameStateResponse.data)
 
         // Cargar hechizos
-        const spellsResponse = await axios.get(`/api/spells/${authStore.profile.id}`)
+        const spellsResponse = await axios.get(`/api/spells/${profileId}`)
         this.spellBook = spellsResponse.data
 
         // Cargar ready to cast
-        const readyToCastResponse = await axios.get(`/api/ready-to-cast/${authStore.profile.id}`)
+        const readyToCastResponse = await axios.get(`/api/ready-to-cast/${profileId}`)
         this.readyToCast = readyToCastResponse.data
         this.updateZeonToSpend()
 
         // Cargar spell mantain list
-        console.log('🔍 Cargando spell mantain list para perfil:', authStore.profile.id)
-        const spellMantainResponse = await axios.get(`/api/spell-mantain/${authStore.profile.id}`)
+        console.log('🔍 Cargando spell mantain list para perfil:', profileId)
+        const spellMantainResponse = await axios.get(`/api/spell-mantain/${profileId}`)
         console.log('📦 Respuesta spell mantain:', spellMantainResponse.data)
         this.spellMantainList = spellMantainResponse.data
         this.updateMantainZeonToSpend()
@@ -98,12 +100,12 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async saveGameState() {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
-      if (!authStore.profile?.id) return
+      if (!profilesStore.activeProfileId) return
 
       try {
-        await axios.put(`/api/gamestate/${authStore.profile.id}`, {
+        await axios.put(`/api/gamestate/${profilesStore.activeProfileId}`, {
           turn_number: this.turn_number,
           zeon: this.zeon,
           rzeon: this.rzeon,
@@ -234,10 +236,10 @@ export const useGameStateStore = defineStore('gameState', {
 
     // Métodos de hechizos
     async addSpell(spell) {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
-        const response = await axios.post(`/api/spells/${authStore.profile.id}`, spell)
+        const response = await axios.post(`/api/spells/${profilesStore.activeProfileId}`, spell)
         this.spellBook.push(response.data)
       } catch (error) {
         console.error('Error añadiendo hechizo:', error)
@@ -246,10 +248,10 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async deleteSpell(spellId) {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
-        await axios.delete(`/api/spells/${authStore.profile.id}/${spellId}`)
+        await axios.delete(`/api/spells/${profilesStore.activeProfileId}/${spellId}`)
         this.spellBook = this.spellBook.filter(s => s.id !== spellId)
       } catch (error) {
         console.error('Error eliminando hechizo:', error)
@@ -258,12 +260,12 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async addToReadyToCast(spellData) {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
         console.log('🔍 addToReadyToCast - spellData recibido:', spellData)
 
-        const response = await axios.post(`/api/ready-to-cast/${authStore.profile.id}`, spellData)
+        const response = await axios.post(`/api/ready-to-cast/${profilesStore.activeProfileId}`, spellData)
 
         console.log('✅ Respuesta del backend:', response.data)
         this.readyToCast.push(response.data)
@@ -275,10 +277,10 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async removeFromReadyToCast(readyToCastId) {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
-        await axios.delete(`/api/ready-to-cast/${authStore.profile.id}/${readyToCastId}`)
+        await axios.delete(`/api/ready-to-cast/${profilesStore.activeProfileId}/${readyToCastId}`)
         this.readyToCast = this.readyToCast.filter(s => s.id !== readyToCastId)
         this.updateZeonToSpend()
       } catch (error) {
@@ -288,10 +290,10 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async addToMantain(spell) {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
-        const response = await axios.post(`/api/spell-mantain/${authStore.profile.id}`, {
+        const response = await axios.post(`/api/spell-mantain/${profilesStore.activeProfileId}`, {
           spell_id: spell.id,
           mantain_cost: spell.mantain_cost
         })
@@ -304,10 +306,10 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async removeFromMantain(mantainId) {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
-        await axios.delete(`/api/spell-mantain/${authStore.profile.id}/${mantainId}`)
+        await axios.delete(`/api/spell-mantain/${profilesStore.activeProfileId}/${mantainId}`)
         this.spellMantainList = this.spellMantainList.filter(s => s.id !== mantainId)
         this.updateMantainZeonToSpend()
       } catch (error) {
@@ -317,7 +319,7 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async clearAllReadyToCast() {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
         // Restar zeon total acumulado de la reserva de zeon
@@ -342,7 +344,7 @@ export const useGameStateStore = defineStore('gameState', {
 
         for (const spell of spellsToMantain) {
           if (spell.spell_mantain && spell.spell_mantain > 0) {
-            await axios.post(`/api/spell-mantain/${authStore.profile.id}`, {
+            await axios.post(`/api/spell-mantain/${profilesStore.activeProfileId}`, {
               spell_id: spell.spell_id,
               spell_name: spell.spell_name,
               spell_mantain: spell.spell_mantain,
@@ -352,11 +354,11 @@ export const useGameStateStore = defineStore('gameState', {
         }
 
         // Recargar la lista de hechizos mantenidos
-        const spellMantainResponse = await axios.get(`/api/spell-mantain/${authStore.profile.id}`)
+        const spellMantainResponse = await axios.get(`/api/spell-mantain/${profilesStore.activeProfileId}`)
         this.spellMantainList = spellMantainResponse.data
         this.updateMantainZeonToSpend()
 
-        await axios.delete(`/api/ready-to-cast/${authStore.profile.id}`)
+        await axios.delete(`/api/ready-to-cast/${profilesStore.activeProfileId}`)
         this.readyToCast = []
         this.updateZeonToSpend()
       } catch (error) {
@@ -366,10 +368,10 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     async clearAllMantain() {
-      const authStore = useAuthStore()
+      const profilesStore = useProfilesStore()
 
       try {
-        await axios.delete(`/api/spell-mantain/${authStore.profile.id}`)
+        await axios.delete(`/api/spell-mantain/${profilesStore.activeProfileId}`)
         this.spellMantainList = []
         this.updateMantainZeonToSpend()
       } catch (error) {

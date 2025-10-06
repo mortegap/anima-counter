@@ -8,6 +8,7 @@
     "add": "Añadir",
     "close": "Cerrar",
     "confirm": "Confirmar",
+    "create": "Crear",
     "loading": "Cargando...",
     "error": "Error"
   },
@@ -106,5 +107,14 @@
     "viewOnGitHub": "Ver código en GitHub",
     "changeTheme": "Cambiar tema",
     "logout": "Cerrar Sesión"
+  },
+  "profiles": {
+    "selectProfile": "Seleccionar perfil",
+    "createNew": "Crear nuevo perfil",
+    "manage": "Gestionar perfiles",
+    "profileName": "Nombre del perfil",
+    "profileNamePlaceholder": "Ej: Mi Personaje",
+    "nameLength": "El nombre debe tener entre 3 y 50 caracteres",
+    "active": "Activo"
   }
 }
