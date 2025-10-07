@@ -90,7 +90,6 @@
             type="number"
             class="form-control"
             v-model.number="gameState.zeona"
-            readonly
           >
         </div>
 
@@ -102,8 +101,9 @@
               id="zeon-control-lost"
               type="number"
               class="form-control"
-              v-model.number="zeonLostAmount"
+              v-model.number="gameState.zeonp"
               min="0"
+              readonly
             >
           </div>
         </div>
@@ -123,7 +123,6 @@ export default {
     const gameState = useGameStateStore()
 
     const rzeonAmount = ref(1)
-    const zeonLostAmount = ref(0)
     const maxZeon = ref(gameState.zeon)
     const acuCheckbox = ref(gameState.acu)
 
@@ -172,13 +171,6 @@ export default {
       await gameState.updateCharacteristics({ acu: acuCheckbox.value })
     }
 
-    const addZeonAccumulated = async (type) => {
-      const amount = zeonLostAmount.value
-      if (amount > 0 && type === 'lost') {
-        await gameState.addZeonAccumulated(amount, type)
-        zeonLostAmount.value = 0
-      }
-    }
 
     // Funciones de turno (integradas desde TurnCounter)
     const nextTurn = async () => {
@@ -204,14 +196,12 @@ export default {
       rzeonAmount,
       maxZeon,
       acuCheckbox,
-      zeonLostAmount,
       zeonPercentage,
       zeonBarClass,
       availableZeonClass,
       modifyRzeon,
       updateMaxZeon,
       toggleAccumulation,
-      addZeonAccumulated,
       nextTurn,
       previousTurn,
       newDay,

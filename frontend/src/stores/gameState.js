@@ -187,6 +187,7 @@ export const useGameStateStore = defineStore('gameState', {
     async resetTurn() {
       this.turn_number = 0
       this.zeona = 0
+      this.zeonp = 0
       await this.saveGameState()
     },
 
@@ -329,9 +330,20 @@ export const useGameStateStore = defineStore('gameState', {
 
         // Calcular excedente de zeon si zeona > zeon_to_spend
         if (this.zeona > this.zeonToSpend) {
-          const excedente = this.zeona - this.zeonToSpend - 10
-          if (excedente > 0) {
-            this.rzeon = Math.min(this.rzeon + excedente, this.zeon)
+          const excedente = this.zeona - this.zeonToSpend
+          console.log('📊 Excedente de zeon calculado:', excedente)
+
+          if (excedente > 10) {
+            // Si el excedente es mayor a 10, devolver excedente - 10 a rzeon
+            const zeonADevolver = excedente - 10
+            this.rzeon = Math.min(this.rzeon + zeonADevolver, this.zeon)
+            // Los 10 restantes se pierden (van a zeonp)
+            this.zeonp += 10
+            console.log(`✅ Devueltos ${zeonADevolver} a rzeon, ${10} perdidos a zeonp`)
+          } else {
+            // Si el excedente es 10 o menos, todo se pierde (va a zeonp)
+            this.zeonp += excedente
+            console.log(`✅ ${excedente} zeon perdidos a zeonp`)
           }
         }
 
