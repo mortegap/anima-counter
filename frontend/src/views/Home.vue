@@ -6,7 +6,7 @@
         <!-- Logo y título -->
         <div class="d-flex align-items-center gap-2">
           <img src="/images/spellbook.png" alt="Spellbook" class="header-logo">
-          <h5 class="mb-0">Anima Counter</h5>
+          <h5 class="mb-0">Anima Zeon Counter</h5>
         </div>
 
         <!-- Botones desktop -->
