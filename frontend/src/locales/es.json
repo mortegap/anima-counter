@@ -36,7 +36,7 @@
     "lifePoints": "Puntos de Vida"
   },
   "zeonControl": {
-    "title": "Resumen de Zeon",
+    "title": "Combate",
     "zeonPool": "Reserva de Zeon",
     "accumulateZeon": "Acumular Zeon",
     "accumulatedZeon": "Zeon Acumulado",
