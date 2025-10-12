@@ -32,7 +32,8 @@
     "maxZeon": "Zeon Máximo",
     "act": "ACT",
     "zeonicRegeneration": "Regeneración Zeónica",
-    "zeonPool": "Reserva de Zeon"
+    "zeonPool": "Reserva de Zeon",
+    "lifePoints": "Puntos de Vida"
   },
   "zeonControl": {
     "title": "Resumen de Zeon",

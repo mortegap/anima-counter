@@ -16,8 +16,8 @@ async function getGameState(req, res) {
     if (gameStateResult.rows.length === 0) {
       // Crear estado inicial si no existe
       const newGameState = await pool.query(`
-        INSERT INTO game_state (user_profile_id, turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend)
-        VALUES ($1, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, 0)
+        INSERT INTO game_state (user_profile_id, turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend, life_points)
+        VALUES ($1, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, 0, 0)
         RETURNING *
       `, [profileId]);
 
@@ -39,7 +39,7 @@ async function updateGameState(req, res) {
     const { profileId } = req.params;
     const {
       turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state,
-      zeon_to_spend, mantain_zeon_to_spend
+      zeon_to_spend, mantain_zeon_to_spend, life_points
     } = req.body;
 
     // UPDATE parcial usando COALESCE para mantener valores existentes si no se envían
@@ -57,18 +57,19 @@ async function updateGameState(req, res) {
         lock_state = COALESCE($9, lock_state),
         zeon_to_spend = COALESCE($10, zeon_to_spend),
         mantain_zeon_to_spend = COALESCE($11, mantain_zeon_to_spend),
+        life_points = COALESCE($12, life_points),
         updated_at = CURRENT_TIMESTAMP
-      WHERE user_profile_id = $12
+      WHERE user_profile_id = $13
       RETURNING *
-    `, [turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend, profileId]);
+    `, [turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend, life_points, profileId]);
 
     if (updateResult.rows.length === 0) {
       // Crear si no existe con valores por defecto
       const newGameState = await pool.query(`
-        INSERT INTO game_state (user_profile_id, turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend)
-        VALUES ($1, COALESCE($2, 0), COALESCE($3, 0), COALESCE($4, 0), COALESCE($5, 0), COALESCE($6, 0), COALESCE($7, 0), COALESCE($8, 0), COALESCE($9, false), COALESCE($10, 0), COALESCE($11, 0), COALESCE($12, 0))
+        INSERT INTO game_state (user_profile_id, turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend, life_points)
+        VALUES ($1, COALESCE($2, 0), COALESCE($3, 0), COALESCE($4, 0), COALESCE($5, 0), COALESCE($6, 0), COALESCE($7, 0), COALESCE($8, 0), COALESCE($9, false), COALESCE($10, 0), COALESCE($11, 0), COALESCE($12, 0), COALESCE($13, 0))
         RETURNING *
-      `, [profileId, turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend]);
+      `, [profileId, turn_number, zeon, rzeon, zeona, act, rzeoni, zeonp, acu, lock_state, zeon_to_spend, mantain_zeon_to_spend, life_points]);
 
       return res.json(newGameState.rows[0]);
     }

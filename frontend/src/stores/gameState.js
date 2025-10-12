@@ -16,6 +16,7 @@ export const useGameStateStore = defineStore('gameState', {
     lock: 0,
     zeonToSpend: 0,
     mantainZeonToSpend: 0,
+    life_points: 0,
 
     // Listas de hechizos
     spellBook: [],
@@ -97,6 +98,7 @@ export const useGameStateStore = defineStore('gameState', {
       this.lock = gameState.lock_state ?? 0
       this.zeonToSpend = gameState.zeon_to_spend ?? 0
       this.mantainZeonToSpend = gameState.mantain_zeon_to_spend ?? 0
+      this.life_points = gameState.life_points ?? 0
     },
 
     async saveGameState() {
@@ -116,7 +118,8 @@ export const useGameStateStore = defineStore('gameState', {
           acu: this.acu,
           lock_state: this.lock,
           zeon_to_spend: this.zeonToSpend,
-          mantain_zeon_to_spend: this.mantainZeonToSpend
+          mantain_zeon_to_spend: this.mantainZeonToSpend,
+          life_points: this.life_points
         })
       } catch (error) {
         console.error('Error guardando estado del juego:', error)
@@ -406,6 +409,7 @@ export const useGameStateStore = defineStore('gameState', {
       this.lock = 0
       this.zeonToSpend = 0
       this.mantainZeonToSpend = 0
+      this.life_points = 0
       this.spellBook = []
       this.readyToCast = []
       this.spellMantainList = []

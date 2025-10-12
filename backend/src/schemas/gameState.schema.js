@@ -44,6 +44,11 @@ const updateGameStateSchema = Joi.object({
     .integer()
     .min(0)
     .optional()
+    .default(0),
+  life_points: Joi.number()
+    .integer()
+    .min(0)
+    .optional()
     .default(0)
 });
 

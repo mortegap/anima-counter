@@ -59,6 +59,19 @@
             min="0"
           >
         </div>
+
+        <div class="col-md-12">
+          <label for="char-stats-life-points" class="form-label">{{ $t('characterStats.lifePoints') }}</label>
+          <input
+            id="char-stats-life-points"
+            type="number"
+            class="form-control"
+            v-model.number="localLifePoints"
+            @blur="updateLifePoints"
+            @keyup.enter="updateLifePoints"
+            min="0"
+          >
+        </div>
       </div>
 
     </div>
@@ -80,10 +93,16 @@ export default {
     const localAct = ref(gameState.act)
     const localRzeoni = ref(gameState.rzeoni)
     const localZeon = ref(gameState.zeon)
+    const localLifePoints = ref(gameState.life_points)
 
     // Sincronizar automáticamente cuando cambia rzeon en el store
     watch(() => gameState.rzeon, (newVal) => {
       localRzeon.value = newVal
+    })
+
+    // Sincronizar automáticamente cuando cambian los life_points en el store
+    watch(() => gameState.life_points, (newVal) => {
+      localLifePoints.value = newVal
     })
 
     // Sincronizar con el store cuando cambian
@@ -92,6 +111,7 @@ export default {
       localAct.value = gameState.act
       localRzeoni.value = gameState.rzeoni
       localZeon.value = gameState.zeon
+      localLifePoints.value = gameState.life_points
     }
 
     const toggleEdit = async () => {
@@ -115,6 +135,12 @@ export default {
       }
     }
 
+    const updateLifePoints = async () => {
+      if (localLifePoints.value >= 0 && localLifePoints.value !== gameState.life_points) {
+        await gameState.updateCharacteristics({ life_points: localLifePoints.value })
+      }
+    }
+
     return {
       gameState,
       isEditing,
@@ -122,8 +148,10 @@ export default {
       localAct,
       localRzeoni,
       localZeon,
+      localLifePoints,
       toggleEdit,
-      updateRzeon
+      updateRzeon,
+      updateLifePoints
     }
   }
 }
