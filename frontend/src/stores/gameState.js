@@ -188,6 +188,7 @@ export const useGameStateStore = defineStore('gameState', {
       this.turn_number = 0
       this.zeona = 0
       this.zeonp = 0
+      await this.clearAllMantain()
       await this.saveGameState()
     },
 
